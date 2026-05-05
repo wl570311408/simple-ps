@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+}
+
+.canvas-container {
+  background: linear-gradient(45deg, #e8e8e8 25%, transparent 25%),
+              linear-gradient(-45deg, #e8e8e8 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #e8e8e8 75%),
+              linear-gradient(-45deg, transparent 75%, #e8e8e8 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.resize-handle {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 3px solid #3b82f6;
+  border-radius: 50%;
+  position: absolute;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+  z-index: 10;
+}
+
+.resize-handle.top-left {
+  top: -10px;
+  left: -10px;
+  cursor: nwse-resize;
+}
+
+.resize-handle.top-right {
+  top: -10px;
+  right: -10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-left {
+  bottom: -10px;
+  left: -10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-right {
+  bottom: -10px;
+  right: -10px;
+  cursor: nwse-resize;
+}
+
+.resize-handle.top {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.resize-handle.bottom {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.resize-handle.left {
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.resize-handle.right {
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.element-selected {
+  outline: 2px dashed #3b82f6;
+}
+
+.text-editor-content:focus {
+  outline: none;
+}
+
+.text-editor-content:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+}

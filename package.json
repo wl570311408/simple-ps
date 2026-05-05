@@ -1,0 +1,23 @@
+{
+  "name": "simple-poster-maker",
+  "version": "1.0.0",
+  "description": "小学生小报排版工具",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.21",
+    "lucide-vue-next": "^0.36.0",
+    "html2canvas": "^1.4.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.38",
+    "autoprefixer": "^10.4.19",
+    "vite": "^5.2.10"
+  }
+}
