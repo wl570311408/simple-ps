@@ -100,57 +100,59 @@
     </header>
 
     <div class="flex">
-      <aside class="w-64 bg-white border-r border-gray-200 p-4">
-        <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-          <Layers class="w-5 h-5" />
-          图层管理
-        </h3>
-        <div v-if="elements.length === 0" class="text-gray-400 text-sm">
-          暂无元素，请添加图片或文字
-        </div>
-        <div v-else class="space-y-2 max-h-96 overflow-y-auto">
-          <div
-            v-for="(element, index) in elements"
-            :key="element.id"
-            @click="selectElement(element)"
-            :class="[
-              'flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors',
-              selectedElement?.id === element.id
-                ? 'bg-blue-50 border border-blue-300'
-                : 'bg-gray-50 hover:bg-gray-100'
-            ]"
-          >
-            <ImageIcon v-if="element.type === 'image'" :size="20" class="text-gray-600" />
-            <Type v-else-if="element.type === 'text'" class="w-5 h-5 text-gray-600" />
-            <Square v-else class="w-5 h-5 text-gray-600" />
-            <span class="text-sm flex-1 truncate">
-              {{ element.type === 'image' ? '图片' : (element.type === 'text' ? '文字' : '形状') }} {{ index + 1 }}
-            </span>
-            <button
-              @click.stop="bringToFront(element)"
-              class="p-1 hover:bg-gray-200 rounded"
-              title="置于顶层"
+      <aside class="w-64 bg-gray-50 border-r border-gray-200 p-4 space-y-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-3">
+          <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <Layers class="w-5 h-5" />
+            图层管理
+          </h3>
+          <div v-if="elements.length === 0" class="text-gray-400 text-sm">
+            暂无元素，请添加图片或文字
+          </div>
+          <div v-else class="space-y-2 max-h-80 overflow-y-auto">
+            <div
+              v-for="(element, index) in sortedElements"
+              :key="element.id"
+              @click="selectElement(element)"
+              :class="[
+                'flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors',
+                selectedElement?.id === element.id
+                  ? 'bg-blue-50 border border-blue-300'
+                  : 'bg-gray-50 hover:bg-gray-100'
+              ]"
             >
-              <ChevronUp class="w-4 h-4" />
-            </button>
-            <button
-              @click.stop="sendToBack(element)"
-              class="p-1 hover:bg-gray-200 rounded"
-              title="置于底层"
-            >
-              <ChevronDown class="w-4 h-4" />
-            </button>
-            <button
-              @click.stop="deleteElement(element)"
-              class="p-1 hover:bg-red-100 text-red-500 rounded"
-              title="删除"
-            >
-              <Trash2 class="w-4 h-4" />
-            </button>
+              <ImageIcon v-if="element.type === 'image'" :size="20" class="text-gray-600" />
+              <Type v-else-if="element.type === 'text'" class="w-5 h-5 text-gray-600" />
+              <Square v-else class="w-5 h-5 text-gray-600" />
+              <span class="text-sm flex-1 truncate" :style="element.type === 'shape' ? { color: element.color } : {}">
+                {{ getLayerName(element) }}
+              </span>
+              <button
+                @click.stop="moveUp(element)"
+                class="p-1 hover:bg-gray-200 rounded"
+                title="上移一层"
+              >
+                <ChevronUp class="w-4 h-4" />
+              </button>
+              <button
+                @click.stop="moveDown(element)"
+                class="p-1 hover:bg-gray-200 rounded"
+                title="下移一层"
+              >
+                <ChevronDown class="w-4 h-4" />
+              </button>
+              <button
+                @click.stop="deleteElement(element)"
+                class="p-1 hover:bg-red-100 text-red-500 rounded"
+                title="删除"
+              >
+                <Trash2 class="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <div v-if="selectedElement" class="mt-6 border-t border-gray-200 pt-4">
+        <div v-if="selectedElement" class="bg-white rounded-lg border border-gray-200 p-3">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Edit3 class="w-5 h-5" />
             素材编辑
@@ -286,12 +288,20 @@
             </div>
             <div>
               <label class="block text-sm text-gray-600 mb-1">颜色</label>
-              <input
-                type="color"
-                v-model="textEditorData.color"
-                @input="updateTextElement"
-                class="w-full h-10 rounded-lg cursor-pointer border border-gray-300"
-              />
+              <div class="flex items-center gap-2">
+                <input
+                  type="color"
+                  v-model="textEditorData.color"
+                  @input="updateTextElement"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 flex-shrink-0"
+                />
+                <input
+                  type="text"
+                  v-model="textEditorData.color"
+                  @input="updateTextElement"
+                  class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
             </div>
             <div>
               <label class="block text-sm text-gray-600 mb-1">对齐</label>
@@ -383,13 +393,13 @@
                   type="color"
                   v-model="shapeEditorData.color"
                   @input="updateShapeElement"
-                  class="w-12 h-10 rounded cursor-pointer border border-gray-300"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 flex-shrink-0"
                 />
                 <input
                   type="text"
                   v-model="shapeEditorData.color"
                   @input="updateShapeElement"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 />
               </div>
             </div>
@@ -508,51 +518,7 @@
           </div>
         </div>
 
-        <div class="mt-6">
-          <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <Settings class="w-5 h-5" />
-            默认设置
-          </h3>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">图片圆角: {{ defaultSettings.imageBorderRadius }}px</label>
-              <input
-                type="range"
-                v-model.number="defaultSettings.imageBorderRadius"
-                min="0"
-                max="50"
-                class="w-full"
-              />
-            </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">文字字号: {{ defaultSettings.textFontSize }}px</label>
-              <input
-                type="range"
-                v-model.number="defaultSettings.textFontSize"
-                min="12"
-                max="72"
-                class="w-full"
-              />
-            </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
-              <div class="flex items-center gap-2">
-                <input
-                  type="color"
-                  v-model="defaultSettings.textColor"
-                  class="w-12 h-10 rounded cursor-pointer border border-gray-300"
-                />
-                <input
-                  type="text"
-                  v-model="defaultSettings.textColor"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6">
+        <div v-if="!selectedElement" class="bg-white rounded-lg border border-gray-200 p-3">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Palette class="w-5 h-5" />
             画布设置
@@ -617,11 +583,18 @@
             </div>
             <div v-if="canvasBgType === 'color'">
               <label class="block text-sm text-gray-600 mb-1">背景颜色</label>
-              <input
-                type="color"
-                v-model="canvasBgColor"
-                class="w-full h-10 rounded-lg cursor-pointer border border-gray-300"
-              />
+              <div class="flex items-center gap-2">
+                <input
+                  type="color"
+                  v-model="canvasBgColor"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 flex-shrink-0"
+                />
+                <input
+                  type="text"
+                  v-model="canvasBgColor"
+                  class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
             </div>
             <div v-if="canvasBgType === 'image'">
               <label class="block text-sm text-gray-600 mb-1">背景图片</label>
@@ -659,6 +632,50 @@
                     <option value="actual">实际尺寸</option>
                   </select>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!selectedElement" class="bg-white rounded-lg border border-gray-200 p-3">
+          <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <Settings class="w-5 h-5" />
+            默认设置
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">图片圆角: {{ defaultSettings.imageBorderRadius }}px</label>
+              <input
+                type="range"
+                v-model.number="defaultSettings.imageBorderRadius"
+                min="0"
+                max="50"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">文字字号: {{ defaultSettings.textFontSize }}px</label>
+              <input
+                type="range"
+                v-model.number="defaultSettings.textFontSize"
+                min="12"
+                max="72"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="color"
+                  v-model="defaultSettings.textColor"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 flex-shrink-0"
+                />
+                <input
+                  type="text"
+                  v-model="defaultSettings.textColor"
+                  class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
               </div>
             </div>
           </div>
@@ -734,9 +751,17 @@
                   class="absolute inset-0 flex items-center justify-center"
                   :style="getShapeOuterStyle(element)"
                 >
-                  <div 
-                    :style="getShapeInnerStyle(element)"
-                  ></div>
+                  <svg v-if="element.shapeType === 'heart'" :width="element.width" :height="element.height" viewBox="0 0 24 24" class="overflow-visible">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" :fill="element.color"/>
+                  </svg>
+                  <svg v-else-if="element.shapeType === 'star'" :width="element.width" :height="element.height" viewBox="0 0 24 24" class="overflow-visible">
+                    <polygon points="12,2 15,9 22,9 16,14 18,22 12,18 6,22 8,14 2,9 9,9" :fill="element.color"/>
+                  </svg>
+                  <svg v-else-if="element.shapeType === 'arrow'" :width="element.width" :height="element.height" viewBox="0 0 24 24" class="overflow-visible">
+                    <rect x="3" y="8" width="14" height="8" rx="1" :fill="element.color"/>
+                    <polygon points="17,4 24,12 17,20" :fill="element.color"/>
+                  </svg>
+                  <div v-else :style="getShapeInnerStyle(element)"></div>
                 </div>
               </div>
 
@@ -966,19 +991,36 @@ const updateTextStyle = (style) => {
   if (selectedElement.value?.type === 'text') {
     const el = selectedElement.value
     if (style === 'bold') {
-      if (el.bold !== textEditorData.value.bold) {
-        saveHistory(el)
-        el.bold = !el.bold
-        textEditorData.value.bold = el.bold
-      }
+      saveHistory(el)
+      el.bold = !el.bold
+      textEditorData.value.bold = el.bold
     } else if (style === 'italic') {
-      if (el.italic !== textEditorData.value.italic) {
-        saveHistory(el)
-        el.italic = !el.italic
-        textEditorData.value.italic = el.italic
-      }
+      saveHistory(el)
+      el.italic = !el.italic
+      textEditorData.value.italic = el.italic
     }
   }
+}
+
+const getLayerName = (element) => {
+  if (element.type === 'image') {
+    return '图片'
+  } else if (element.type === 'text') {
+    return '文字'
+  } else if (element.type === 'shape') {
+    const shapeNames = {
+      rectangle: '矩形',
+      circle: '圆形',
+      ellipse: '椭圆',
+      triangle: '三角形',
+      diamond: '菱形',
+      star: '五角星',
+      heart: '心形',
+      arrow: '箭头'
+    }
+    return shapeNames[element.shapeType] || '形状'
+  }
+  return '元素'
 }
 
 const sortedElements = computed(() => {
@@ -1426,12 +1468,13 @@ const getShapeInnerStyle = (element) => {
   } else if (element.shapeType === 'star') {
     style.clipPath = `polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)`
   } else if (element.shapeType === 'heart') {
-    style.clipPath = `polygon(50% 75%, 25% 45%, 10% 45%, 20% 65%, 15% 85%, 50% 100%, 85% 85%, 80% 65%, 90% 45%, 75% 45%)`
+    style.clipPath = `polygon(50% 95%, 5% 55%, 20% 50%, 35% 65%, 50% 5%, 65% 65%, 80% 50%, 95% 55%)`
   } else if (element.shapeType === 'arrow') {
     const w = element.width
     const h = element.height
-    const arrowLen = h * 0.5
-    style.clipPath = `polygon(0% 50%, ${w - arrowLen}% 50%, ${w - arrowLen}% ${25}%, 100% 50%, ${w - arrowLen}% ${75}%, ${w - arrowLen}% 50%)`
+    const shaftWidth = h * 0.3
+    const arrowHeadLen = h * 0.5
+    style.clipPath = `polygon(0% ${50 - shaftWidth/2}%, 0% ${50 + shaftWidth/2}%, ${w - arrowHeadLen}% ${50 + shaftWidth/2}%, ${w - arrowHeadLen}% ${50 + h/2}%, 100% 50%, ${w - arrowHeadLen}% ${50 - h/2}%, ${w - arrowHeadLen}% ${50 - shaftWidth/2}%, 0% ${50 - shaftWidth/2}%)`
   }
   
   if (element.blur && element.blur > 0) {
@@ -1819,6 +1862,28 @@ const closeTextEditor = () => {
 const bringToFront = (element) => {
   const maxZIndex = Math.max(...elements.value.map(e => e.zIndex), 0)
   element.zIndex = maxZIndex + 1
+}
+
+const moveUp = (element) => {
+  const sorted = sortedElements.value
+  const currentIndex = sorted.findIndex(e => e.id === element.id)
+  if (currentIndex < sorted.length - 1) {
+    const currentZIndex = element.zIndex
+    const nextElement = sorted[currentIndex + 1]
+    element.zIndex = nextElement.zIndex
+    nextElement.zIndex = currentZIndex
+  }
+}
+
+const moveDown = (element) => {
+  const sorted = sortedElements.value
+  const currentIndex = sorted.findIndex(e => e.id === element.id)
+  if (currentIndex > 0) {
+    const currentZIndex = element.zIndex
+    const prevElement = sorted[currentIndex - 1]
+    element.zIndex = prevElement.zIndex
+    prevElement.zIndex = currentZIndex
+  }
 }
 
 const sendToBack = (element) => {

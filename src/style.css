@@ -97,3 +97,20 @@ body {
   content: attr(data-placeholder);
   color: #9ca3af;
 }
+
+input[type="color"] {
+  -webkit-appearance: none;
+  padding: 0;
+  cursor: pointer;
+  border-width: 2px;
+  border-style: solid;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.375rem;
+}
