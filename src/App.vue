@@ -29,20 +29,62 @@
               <Square class="w-5 h-5" />
               <span>添加形状</span>
             </button>
-            <div v-if="showShapeMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50">
+            <div v-if="showShapeMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
             <button
               @click="addShape('rectangle'); showShapeMenu = false"
-              class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded w-full text-left"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
             >
-              <Square class="w-5 h-5" />
+              <Square class="w-4 h-4" />
               <span>矩形</span>
             </button>
             <button
               @click="addShape('circle'); showShapeMenu = false"
-              class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded w-full text-left"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
             >
-              <Circle class="w-5 h-5" />
+              <Circle class="w-4 h-4" />
               <span>圆形</span>
+            </button>
+            <button
+              @click="addShape('ellipse'); showShapeMenu = false"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+            >
+              <Circle class="w-4 h-4" />
+              <span>椭圆</span>
+            </button>
+            <button
+              @click="addShape('triangle'); showShapeMenu = false"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+            >
+              <Triangle class="w-4 h-4" />
+              <span>三角形</span>
+            </button>
+            <button
+              @click="addShape('diamond'); showShapeMenu = false"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+            >
+              <Hexagon class="w-4 h-4" />
+              <span>菱形</span>
+            </button>
+            <button
+              @click="addShape('star'); showShapeMenu = false"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+            >
+              <Star class="w-4 h-4" />
+              <span>星形</span>
+            </button>
+            <button
+              @click="addShape('heart'); showShapeMenu = false"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+            >
+              <Heart class="w-4 h-4" />
+              <span>心形</span>
+            </button>
+            <button
+              @click="addShape('arrow'); showShapeMenu = false"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+            >
+              <ArrowRight class="w-4 h-4" />
+              <span>箭头</span>
             </button>
             </div>
           </div>
@@ -351,16 +393,91 @@
                 />
               </div>
             </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">边缘羽化: {{ shapeEditorData.blur }}px</label>
-              <input
-                type="range"
-                v-model.number="shapeEditorData.blur"
-                min="0"
-                max="50"
-                class="w-full"
-                @input="updateShapeElement"
-              />
+            <div v-if="selectedElement?.shapeType === 'rectangle' || selectedElement?.shapeType === 'ellipse' || selectedElement?.shapeType === 'triangle' || selectedElement?.shapeType === 'diamond' || selectedElement?.shapeType === 'star' || selectedElement?.shapeType === 'heart' || selectedElement?.shapeType === 'arrow'" class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">宽度</label>
+                <input
+                  type="number"
+                  :value="selectedElement.width"
+                  @input="updateShapeWidth($event, selectedElement)"
+                  class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  min="1"
+                  max="9999"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">高度</label>
+                <input
+                  type="number"
+                  :value="selectedElement.height"
+                  @input="updateShapeHeight($event, selectedElement)"
+                  class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  min="1"
+                  max="9999"
+                />
+              </div>
+            </div>
+            <div v-if="selectedElement?.shapeType === 'rectangle'" class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">圆角</label>
+                <input
+                  type="number"
+                  :value="selectedElement?.borderRadius || 0"
+                  @input="updateShapeBorderRadius($event, selectedElement)"
+                  class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                <input
+                  type="range"
+                  v-model.number="shapeEditorData.blur"
+                  min="0"
+                  max="50"
+                  class="w-full"
+                  @input="updateShapeElement"
+                />
+              </div>
+            </div>
+            <div v-else-if="selectedElement?.shapeType === 'circle'" class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">半径</label>
+                <input
+                  type="number"
+                  :value="Math.round(selectedElement.width / 2)"
+                  @input="updateShapeRadius($event, selectedElement)"
+                  class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  min="1"
+                  max="4999"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                <input
+                  type="range"
+                  v-model.number="shapeEditorData.blur"
+                  min="0"
+                  max="50"
+                  class="w-full"
+                  @input="updateShapeElement"
+                />
+              </div>
+            </div>
+            <div v-else class="grid grid-cols-2 gap-2">
+              <div></div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                <input
+                  type="range"
+                  v-model.number="shapeEditorData.blur"
+                  min="0"
+                  max="50"
+                  class="w-full"
+                  @input="updateShapeElement"
+                />
+              </div>
             </div>
             <div class="flex gap-2 pt-2">
               <button
@@ -393,6 +510,50 @@
 
         <div class="mt-6">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <Settings class="w-5 h-5" />
+            默认设置
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">图片圆角: {{ defaultSettings.imageBorderRadius }}px</label>
+              <input
+                type="range"
+                v-model.number="defaultSettings.imageBorderRadius"
+                min="0"
+                max="50"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">文字字号: {{ defaultSettings.textFontSize }}px</label>
+              <input
+                type="range"
+                v-model.number="defaultSettings.textFontSize"
+                min="12"
+                max="72"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="color"
+                  v-model="defaultSettings.textColor"
+                  class="w-12 h-10 rounded cursor-pointer border border-gray-300"
+                />
+                <input
+                  type="text"
+                  v-model="defaultSettings.textColor"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Palette class="w-5 h-5" />
             画布设置
           </h3>
@@ -413,21 +574,23 @@
                 <option value="poster">海报 (800 × 600px)</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">画布宽度 (px)</label>
-              <input
-                type="number"
-                v-model.number="canvasWidth"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">画布高度 (px)</label>
-              <input
-                type="number"
-                v-model.number="canvasHeight"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">画布宽度 (px)</label>
+                <input
+                  type="number"
+                  v-model.number="canvasWidth"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">画布高度 (px)</label>
+                <input
+                  type="number"
+                  v-model.number="canvasHeight"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
             </div>
             <div>
               <label class="block text-sm text-gray-600 mb-1">背景类型</label>
@@ -484,6 +647,18 @@
                 >
                   移除图片
                 </button>
+                <div class="mt-3">
+                  <label class="block text-sm text-gray-600 mb-1">填充方式</label>
+                  <select
+                    v-model="canvasBgFillMode"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  >
+                    <option value="resize">重置画布尺寸</option>
+                    <option value="cover">等比例铺满</option>
+                    <option value="stretch">拉伸铺满</option>
+                    <option value="actual">实际尺寸</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -550,10 +725,20 @@
                 {{ element.text }}
               </div>
               <div
-                v-else-if="element.type === 'shape'"
+                v-else-if="element.type === 'shape' && (element.shapeType === 'rectangle' || element.shapeType === 'circle' || element.shapeType === 'ellipse')"
                 class="w-full h-full"
-                :style="getShapeStyle(element)"
+                :style="getBasicShapeStyle(element)"
               ></div>
+              <div v-else-if="element.type === 'shape'" class="w-full h-full relative">
+                <div 
+                  class="absolute inset-0 flex items-center justify-center"
+                  :style="getShapeOuterStyle(element)"
+                >
+                  <div 
+                    :style="getShapeInnerStyle(element)"
+                  ></div>
+                </div>
+              </div>
 
               <div
                 v-if="selectedElement?.id === element.id"
@@ -624,17 +809,20 @@ import {
   LayoutGrid, ImagePlus, Type, Download, Layers,
   ChevronUp, ChevronDown, Trash2, Palette, X,
   AlignLeft, AlignCenter, AlignRight, Bold, Italic,
-  Edit3, Copy, Image as ImageIcon, Upload, Square, Circle
+  Edit3, Copy, Image as ImageIcon, Upload, Square, Circle, Settings,
+  Triangle, Star, Heart, ArrowRight, Hexagon
 } from 'lucide-vue-next'
 import html2canvas from 'html2canvas'
 
 const fileInputRef = ref(null)
 const canvasRef = ref(null)
+const bgImageInputRef = ref(null)
 const canvasWidth = ref(800)
 const canvasHeight = ref(600)
 const canvasBgColor = ref('#ffffff')
 const canvasBgType = ref('color')
 const canvasBgImage = ref('')
+const canvasBgFillMode = ref('resize')
 const selectedPreset = ref('')
 const canvasScale = ref(100)
 const elements = ref([])
@@ -643,6 +831,12 @@ const showShapeMenu = ref(false)
 const shapeEditorData = ref({
   color: '#3b82f6',
   blur: 0
+})
+
+const defaultSettings = ref({
+  imageBorderRadius: 0,
+  textFontSize: 24,
+  textColor: '#333333'
 })
 
 const imageEditorData = ref({
@@ -949,9 +1143,24 @@ const getCanvasStyle = () => {
     style.backgroundColor = canvasBgColor.value
   } else if (canvasBgType.value === 'image' && canvasBgImage.value) {
     style.backgroundImage = `url(${canvasBgImage.value})`
-    style.backgroundSize = 'cover'
     style.backgroundPosition = 'center'
     style.backgroundRepeat = 'no-repeat'
+    
+    switch (canvasBgFillMode.value) {
+      case 'cover':
+        style.backgroundSize = 'cover'
+        break
+      case 'stretch':
+        style.backgroundSize = '100% 100%'
+        break
+      case 'actual':
+        style.backgroundSize = 'auto'
+        break
+      case 'resize':
+      default:
+        style.backgroundSize = 'cover'
+        break
+    }
   }
   return style
 }
@@ -979,10 +1188,29 @@ const handleBgImageChange = (event) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       canvasBgImage.value = e.target.result
+      if (canvasBgFillMode.value === 'resize') {
+        const img = new Image()
+        img.onload = () => {
+          canvasWidth.value = img.width
+          canvasHeight.value = img.height
+        }
+        img.src = e.target.result
+      }
     }
     reader.readAsDataURL(file)
   }
 }
+
+watch(canvasBgFillMode, (newMode) => {
+  if (newMode === 'resize' && canvasBgImage.value) {
+    const img = new Image()
+    img.onload = () => {
+      canvasWidth.value = img.width
+      canvasHeight.value = img.height
+    }
+    img.src = canvasBgImage.value
+  }
+})
 
 watch([canvasWidth, canvasHeight], () => {
   const w = canvasWidth.value
@@ -1105,14 +1333,111 @@ const addShape = (shapeType) => {
   selectElement(newElement)
 }
 
-const getShapeStyle = (element) => {
+const updateShapeWidth = (event, element) => {
+  let value = parseInt(event.target.value) || 1
+  value = Math.max(1, Math.min(9999, value))
+  event.target.value = value
+  element.width = value
+}
+
+const updateShapeHeight = (event, element) => {
+  let value = parseInt(event.target.value) || 1
+  value = Math.max(1, Math.min(9999, value))
+  event.target.value = value
+  element.height = value
+}
+
+const updateShapeRadius = (event, element) => {
+  let value = parseInt(event.target.value) || 1
+  value = Math.max(1, Math.min(4999, value))
+  event.target.value = value
+  element.width = value * 2
+  element.height = value * 2
+}
+
+const updateShapeBorderRadius = (event, element) => {
+  let value = parseInt(event.target.value) || 0
+  value = Math.max(0, Math.min(100, value))
+  event.target.value = value
+  element.borderRadius = value
+}
+
+const getBasicShapeStyle = (element) => {
+  const displayWidth = element.width * (element.scale / 100)
+  const displayHeight = element.height * (element.scale / 100)
+  
   const style = {
     backgroundColor: element.color,
-    borderRadius: element.shapeType === 'circle' ? '50%' : '0'
+    width: `${displayWidth}px`,
+    height: `${displayHeight}px`
   }
+  
+  if (element.shapeType === 'circle') {
+    style.borderRadius = '50%'
+  } else if (element.shapeType === 'ellipse') {
+    style.borderRadius = '50%'
+  } else if (element.shapeType === 'rectangle') {
+    style.borderRadius = ((element.borderRadius || 0) * (element.scale / 100)) + 'px'
+  }
+  
   if (element.blur && element.blur > 0) {
-    style.boxShadow = `0 0 ${element.blur}px ${element.blur}px ${element.color}`
+    const blur = element.blur
+    style.filter = `blur(${blur}px)`
+    style.transform = `scale(${1 + blur / 100})`
   }
+  
+  return style
+}
+
+const getShapeOuterStyle = (element) => {
+  const style = {}
+  if (element.blur && element.blur > 0) {
+    const blur = element.blur
+    style.filter = `blur(${blur}px)`
+    style.width = `${element.width + blur * 4}px`
+    style.height = `${element.height + blur * 4}px`
+    style.marginLeft = `-${blur * 2}px`
+    style.marginTop = `-${blur * 2}px`
+    style.marginRight = `-${blur * 2}px`
+    style.marginBottom = `-${blur * 2}px`
+    style.transform = 'scale(1)'
+    style.transformOrigin = 'center center'
+  }
+  return style
+}
+
+const getShapeInnerStyle = (element) => {
+  const style = {
+    backgroundColor: element.color,
+    width: `${element.width}px`,
+    height: `${element.height}px`
+  }
+  
+  if (element.shapeType === 'circle') {
+    style.borderRadius = '50%'
+  } else if (element.shapeType === 'ellipse') {
+    style.borderRadius = '50%'
+  } else if (element.shapeType === 'rectangle') {
+    style.borderRadius = (element.borderRadius || 0) + 'px'
+  } else if (element.shapeType === 'triangle') {
+    style.clipPath = `polygon(50% 0%, 0% 100%, 100% 100%)`
+  } else if (element.shapeType === 'diamond') {
+    style.clipPath = `polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)`
+  } else if (element.shapeType === 'star') {
+    style.clipPath = `polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)`
+  } else if (element.shapeType === 'heart') {
+    style.clipPath = `polygon(50% 75%, 25% 45%, 10% 45%, 20% 65%, 15% 85%, 50% 100%, 85% 85%, 80% 65%, 90% 45%, 75% 45%)`
+  } else if (element.shapeType === 'arrow') {
+    const w = element.width
+    const h = element.height
+    const arrowLen = h * 0.5
+    style.clipPath = `polygon(0% 50%, ${w - arrowLen}% 50%, ${w - arrowLen}% ${25}%, 100% 50%, ${w - arrowLen}% ${75}%, ${w - arrowLen}% 50%)`
+  }
+  
+  if (element.blur && element.blur > 0) {
+    style.opacity = 0.9
+  }
+  
   return style
 }
 
@@ -1168,7 +1493,7 @@ const handleFileChange = (event) => {
         width,
         height,
         scale: 100,
-        borderRadius: 0,
+        borderRadius: defaultSettings.value.imageBorderRadius,
         cropTop: 0,
         cropBottom: 0,
         cropLeft: 0,
@@ -1186,18 +1511,19 @@ const handleFileChange = (event) => {
 }
 
 const addText = () => {
+  const fontSize = defaultSettings.value.textFontSize
   const newElement = {
     id: ++idCounter,
     type: 'text',
     text: '双击编辑文字',
     x: canvasWidth.value / 2 - 100,
-    y: canvasHeight.value / 2 - 20,
+    y: canvasHeight.value / 2 - fontSize / 2,
     width: 200,
-    height: 40,
+    height: fontSize + 16,
     scale: 100,
     fontFamily: 'Microsoft YaHei',
-    fontSize: 24,
-    color: '#333333',
+    fontSize: fontSize,
+    color: defaultSettings.value.textColor,
     textAlign: 'center',
     bold: false,
     italic: false,
@@ -1244,6 +1570,9 @@ const handleCanvasClick = () => {
   selectedElement.value = null
 }
 
+let rafId = null
+let resizeRafId = null
+
 const startDrag = (event, element) => {
   event.preventDefault()
 
@@ -1261,23 +1590,31 @@ const startDrag = (event, element) => {
 }
 
 const handleDrag = (event) => {
-  const { element, startX, startY, startLeft, startTop } = dragData.value
-  if (!element) return
+  if (rafId) {
+    cancelAnimationFrame(rafId)
+  }
 
-  const scale = canvasScale.value / 100
-  const dx = (event.clientX - startX) / scale
-  const dy = (event.clientY - startY) / scale
+  rafId = requestAnimationFrame(() => {
+    const { element, startX, startY, startLeft, startTop } = dragData.value
+    if (!element) return
 
-  const displayWidth = element.width * (element.scale / 100)
-  const displayHeight = element.height * (element.scale / 100)
+    const scale = canvasScale.value / 100
+    const dx = (event.clientX - startX) / scale
+    const dy = (event.clientY - startY) / scale
 
-  const minX = -displayWidth + 1
-  const maxX = canvasWidth.value - 1
-  const minY = -displayHeight + 1
-  const maxY = canvasHeight.value - 1
+    const displayWidth = element.width * (element.scale / 100)
+    const displayHeight = element.height * (element.scale / 100)
 
-  element.x = Math.max(minX, Math.min(maxX, startLeft + dx))
-  element.y = Math.max(minY, Math.min(maxY, startTop + dy))
+    const minX = -displayWidth + 1
+    const maxX = canvasWidth.value - 1
+    const minY = -displayHeight + 1
+    const maxY = canvasHeight.value - 1
+
+    element.x = Math.max(minX, Math.min(maxX, startLeft + dx))
+    element.y = Math.max(minY, Math.min(maxY, startTop + dy))
+
+    rafId = null
+  })
 }
 
 const stopDrag = () => {
@@ -1327,81 +1664,96 @@ const startResize = (event, element, type, direction1, direction2 = '') => {
 }
 
 const handleResize = (event) => {
-  const { element, startX, startY, startDisplayWidth, startDisplayHeight, startXPos, startYPos, startScale, type, direction1, direction2 } = resizeData.value
-  if (!element) return
-
-  const scale = canvasScale.value / 100
-  const dx = (event.clientX - startX) / scale
-  const dy = (event.clientY - startY) / scale
-
-  if (type === 'corner') {
-    const ratio = element.height / element.width
-    
-    let newDisplayWidth = startDisplayWidth
-    let newDisplayHeight = startDisplayHeight
-    let newX = startXPos
-    let newY = startYPos
-
-    if (direction2 === 'right') {
-      newDisplayWidth = Math.max(20, startDisplayWidth + dx)
-    } else if (direction2 === 'left') {
-      newDisplayWidth = Math.max(20, startDisplayWidth - dx)
-      newX = startXPos + dx
-    }
-
-    if (direction1 === 'bottom') {
-      newDisplayHeight = Math.max(20, startDisplayHeight + dy)
-    } else if (direction1 === 'top') {
-      newDisplayHeight = Math.max(20, startDisplayHeight - dy)
-      newY = startYPos + dy
-    }
-
-    const widthRatio = newDisplayWidth / startDisplayWidth
-    const heightRatio = newDisplayHeight / startDisplayHeight
-    
-    const actualRatio = Math.min(widthRatio, heightRatio)
-    
-    if (actualRatio > 0) {
-      newDisplayWidth = startDisplayWidth * actualRatio
-      newDisplayHeight = startDisplayHeight * actualRatio
-    }
-
-    const displayWidthChange = newDisplayWidth - startDisplayWidth
-    const displayHeightChange = newDisplayHeight - startDisplayHeight
-
-    if (direction2 === 'left') {
-      newX = startXPos + startDisplayWidth - newDisplayWidth
-    }
-    if (direction1 === 'top') {
-      newY = startYPos + startDisplayHeight - newDisplayHeight
-    }
-
-    const newScale = Math.max(10, Math.min(300, (newDisplayWidth / element.width) * 100))
-    
-    element.scale = newScale
-    element.x = newX
-    element.y = newY
-    
-    if (element.type === 'image') {
-      imageEditorData.value.scale = newScale
-    }
-  } else if (type === 'edge') {
-    if (direction1 === 'right') {
-      const newDisplayWidth = Math.max(20, startDisplayWidth + dx)
-      element.width = (newDisplayWidth / (startScale / 100))
-    } else if (direction1 === 'left') {
-      const newDisplayWidth = Math.max(20, startDisplayWidth - dx)
-      element.width = (newDisplayWidth / (startScale / 100))
-      element.x = startXPos + dx
-    } else if (direction1 === 'bottom') {
-      const newDisplayHeight = Math.max(20, startDisplayHeight + dy)
-      element.height = (newDisplayHeight / (startScale / 100))
-    } else if (direction1 === 'top') {
-      const newDisplayHeight = Math.max(20, startDisplayHeight - dy)
-      element.height = (newDisplayHeight / (startScale / 100))
-      element.y = startYPos + dy
-    }
+  if (resizeRafId) {
+    cancelAnimationFrame(resizeRafId)
   }
+
+  resizeRafId = requestAnimationFrame(() => {
+    const { element, startX, startY, startDisplayWidth, startDisplayHeight, startXPos, startYPos, startScale, type, direction1, direction2 } = resizeData.value
+    if (!element) return
+
+    const scale = canvasScale.value / 100
+    const dx = (event.clientX - startX) / scale
+    const dy = (event.clientY - startY) / scale
+
+    if (type === 'corner') {
+      const ratio = element.height / element.width
+      
+      let newDisplayWidth = startDisplayWidth
+      let newDisplayHeight = startDisplayHeight
+      let newX = startXPos
+      let newY = startYPos
+
+      if (direction2 === 'right') {
+        newDisplayWidth = Math.max(20, startDisplayWidth + dx)
+      } else if (direction2 === 'left') {
+        newDisplayWidth = Math.max(20, startDisplayWidth - dx)
+        newX = startXPos + dx
+      }
+
+      if (direction1 === 'bottom') {
+        newDisplayHeight = Math.max(20, startDisplayHeight + dy)
+      } else if (direction1 === 'top') {
+        newDisplayHeight = Math.max(20, startDisplayHeight - dy)
+        newY = startYPos + dy
+      }
+
+      const widthRatio = newDisplayWidth / startDisplayWidth
+      const heightRatio = newDisplayHeight / startDisplayHeight
+      
+      const actualRatio = Math.min(widthRatio, heightRatio)
+      
+      if (actualRatio > 0) {
+        newDisplayWidth = startDisplayWidth * actualRatio
+        newDisplayHeight = startDisplayHeight * actualRatio
+      }
+
+      const displayWidthChange = newDisplayWidth - startDisplayWidth
+      const displayHeightChange = newDisplayHeight - startDisplayHeight
+
+      if (direction2 === 'left') {
+        newX = startXPos + startDisplayWidth - newDisplayWidth
+      }
+      if (direction1 === 'top') {
+        newY = startYPos + startDisplayHeight - newDisplayHeight
+      }
+
+      if (element.type === 'shape' && (element.shapeType === 'triangle' || element.shapeType === 'diamond' || element.shapeType === 'star' || element.shapeType === 'heart' || element.shapeType === 'arrow')) {
+        element.width = Math.max(10, newDisplayWidth)
+        element.height = Math.max(10, newDisplayHeight)
+        element.x = newX
+        element.y = newY
+      } else {
+        const newScale = Math.max(10, Math.min(300, (newDisplayWidth / element.width) * 100))
+        
+        element.scale = newScale
+        element.x = newX
+        element.y = newY
+        
+        if (element.type === 'image') {
+          imageEditorData.value.scale = newScale
+        }
+      }
+    } else if (type === 'edge') {
+      if (direction1 === 'right') {
+        const newDisplayWidth = Math.max(20, startDisplayWidth + dx)
+        element.width = (newDisplayWidth / (startScale / 100))
+      } else if (direction1 === 'left') {
+        const newDisplayWidth = Math.max(20, startDisplayWidth - dx)
+        element.width = (newDisplayWidth / (startScale / 100))
+        element.x = startXPos + dx
+      } else if (direction1 === 'bottom') {
+        const newDisplayHeight = Math.max(20, startDisplayHeight + dy)
+        element.height = (newDisplayHeight / (startScale / 100))
+      } else if (direction1 === 'top') {
+        const newDisplayHeight = Math.max(20, startDisplayHeight - dy)
+        element.height = (newDisplayHeight / (startScale / 100))
+        element.y = startYPos + dy
+      }
+    }
+
+    resizeRafId = null
+  })
 }
 
 const stopResize = () => {
