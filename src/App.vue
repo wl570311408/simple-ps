@@ -705,24 +705,18 @@
               @mousedown="startDrag($event, element)"
               @click.stop="selectElement(element)"
             >
-              <div v-if="element.type === 'image'" class="w-full h-full relative overflow-hidden" :style="{ borderRadius: element.borderRadius + 'px' }">
+              <div v-if="element.type === 'image'" class="w-full h-full relative overflow-hidden" :style="{ borderRadius: element.borderRadius + 'px', clipPath: getClipPath(element) }">
                 <img
                   v-if="selectedElement?.id === element.id && hasCrop(element)"
                   :src="element.src"
                   class="absolute inset-0 w-full h-full object-cover opacity-40"
                   draggable="false"
                 />
-                <div 
-                  class="absolute inset-0 overflow-hidden"
-                  :style="getCropWrapperStyle(element)"
-                >
-                  <img
-                    :src="element.src"
-                    class="absolute"
-                    :style="getCroppedImageStyle(element)"
-                    draggable="false"
-                  />
-                </div>
+                <img
+                  :src="element.src"
+                  class="w-full h-full object-cover"
+                  draggable="false"
+                />
                 <div
                   v-if="selectedElement?.id === element.id && hasCrop(element)"
                   class="absolute inset-0 pointer-events-none"
@@ -1056,73 +1050,7 @@ const getClipPath = (element) => {
   return `inset(${cropTop}% ${cropRight}% ${cropBottom}% ${cropLeft}% round ${borderRadius}px)`
 }
 
-const getCropWrapperStyle = (element) => {
-  const cropTop = element.cropTop || 0
-  const cropBottom = element.cropBottom || 0
-  const cropLeft = element.cropLeft || 0
-  const cropRight = element.cropRight || 0
-  const borderRadius = element.borderRadius || 0
-  
-  if (cropTop === 0 && cropBottom === 0 && cropLeft === 0 && cropRight === 0) {
-    return { borderRadius: borderRadius + 'px' }
-  }
-  
-  const visibleWidth = 100 - cropLeft - cropRight
-  const visibleHeight = 100 - cropTop - cropBottom
-  
-  return {
-    left: cropLeft + '%',
-    top: cropTop + '%',
-    width: visibleWidth + '%',
-    height: visibleHeight + '%',
-    borderRadius: borderRadius + 'px'
-  }
-}
 
-const getCroppedImageStyle = (element) => {
-  const cropTop = element.cropTop || 0
-  const cropBottom = element.cropBottom || 0
-  const cropLeft = element.cropLeft || 0
-  const cropRight = element.cropRight || 0
-  
-  if (cropTop === 0 && cropBottom === 0 && cropLeft === 0 && cropRight === 0) {
-    return {
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover'
-    }
-  }
-  
-  const visibleWidth = 100 - cropLeft - cropRight
-  const visibleHeight = 100 - cropTop - cropBottom
-  
-  if (visibleWidth <= 0 || visibleHeight <= 0) {
-    return {
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover'
-    }
-  }
-  
-  const scaleX = 100 / visibleWidth
-  const scaleY = 100 / visibleHeight
-  const translateX = -cropLeft / visibleWidth * 100
-  const translateY = -cropTop / visibleHeight * 100
-  
-  return {
-    transform: `translate(${translateX}%, ${translateY}%) scale(${scaleX}, ${scaleY})`,
-    transformOrigin: 'top left',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
-  }
-}
 
 const getImageStyle = (element) => {
   const cropTop = element.cropTop || 0
@@ -1929,12 +1857,172 @@ const exportImage = async () => {
     canvasRef.value.style.width = `${canvasWidth.value}px`
     canvasRef.value.style.height = `${canvasHeight.value}px`
 
-    const canvas = await html2canvas(canvasRef.value, {
-      scale: 1,
-      width: canvasWidth.value,
-      height: canvasHeight.value,
-      backgroundColor: canvasBgColor.value
-    })
+    const hideElements = document.querySelectorAll('.element-selected, .resize-handle, .crop-overlay')
+    hideElements.forEach(el => el.style.display = 'none')
+
+    await processImagesForExport()
+
+    const scale = 2
+    const canvas = document.createElement('canvas')
+    canvas.width = canvasWidth.value * scale
+    canvas.height = canvasHeight.value * scale
+    const ctx = canvas.getContext('2d')
+    
+    ctx.fillStyle = canvasBgColor.value
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    
+    for (const element of sortedElements.value) {
+      if (element.type === 'image') {
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        await new Promise((resolve, reject) => {
+          img.onload = resolve
+          img.onerror = reject
+          img.src = element.src
+        })
+        
+        const displayWidth = element.width * (element.scale / 100) * scale
+        const displayHeight = element.height * (element.scale / 100) * scale
+        
+        const cropTop = (element.cropTop || 0) / 100
+        const cropBottom = (element.cropBottom || 0) / 100
+        const cropLeft = (element.cropLeft || 0) / 100
+        const cropRight = (element.cropRight || 0) / 100
+        
+        const sourceX = cropLeft * img.width
+        const sourceY = cropTop * img.height
+        const sourceWidth = (1 - cropLeft - cropRight) * img.width
+        const sourceHeight = (1 - cropTop - cropBottom) * img.height
+        
+        const borderRadius = (element.borderRadius || 0) * scale
+        
+        ctx.save()
+        if (borderRadius > 0) {
+          ctx.beginPath()
+          ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, borderRadius)
+          ctx.clip()
+        }
+        
+        ctx.beginPath()
+        ctx.roundRect(
+          element.x * scale + displayWidth * cropLeft,
+          element.y * scale + displayHeight * cropTop,
+          displayWidth * (1 - cropLeft - cropRight),
+          displayHeight * (1 - cropTop - cropBottom),
+          borderRadius
+        )
+        ctx.clip()
+        
+        ctx.drawImage(img, 0, 0, img.width, img.height, element.x * scale, element.y * scale, displayWidth, displayHeight)
+        ctx.restore()
+      } else if (element.type === 'text') {
+        ctx.save()
+        ctx.font = `${element.bold ? 'bold' : ''} ${element.italic ? 'italic' : ''} ${element.fontSize * scale}px ${element.fontFamily}`
+        ctx.fillStyle = element.color
+        ctx.textAlign = element.textAlign
+        ctx.textBaseline = 'middle'
+        
+        const displayWidth = element.width * (element.scale / 100) * scale
+        const displayHeight = element.height * (element.scale / 100) * scale
+        
+        ctx.fillText(element.text || ' ', element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2)
+        ctx.restore()
+      } else if (element.type === 'shape') {
+        ctx.save()
+        
+        const displayWidth = element.width * (element.scale / 100) * scale
+        const displayHeight = element.height * (element.scale / 100) * scale
+        
+        const blur = (element.blur || 0) * scale
+        if (blur > 0) {
+          ctx.filter = `blur(${blur}px)`
+          ctx.shadowColor = element.color
+          ctx.shadowBlur = blur * 2
+        }
+        
+        ctx.fillStyle = element.color
+        
+        if (element.shapeType === 'circle') {
+          ctx.beginPath()
+          ctx.arc(element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2, displayWidth / 2, 0, Math.PI * 2)
+          ctx.fill()
+        } else if (element.shapeType === 'ellipse') {
+          ctx.beginPath()
+          ctx.ellipse(element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2, displayWidth / 2, displayHeight / 2, 0, 0, Math.PI * 2)
+          ctx.fill()
+        } else if (element.shapeType === 'rectangle') {
+          const borderRadius = (element.borderRadius || 0) * scale
+          ctx.beginPath()
+          ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, borderRadius)
+          ctx.fill()
+        } else if (element.shapeType === 'triangle') {
+          ctx.beginPath()
+          ctx.moveTo(element.x * scale + displayWidth / 2, element.y * scale)
+          ctx.lineTo(element.x * scale + displayWidth, element.y * scale + displayHeight)
+          ctx.lineTo(element.x * scale, element.y * scale + displayHeight)
+          ctx.closePath()
+          ctx.fill()
+        } else if (element.shapeType === 'diamond') {
+          ctx.beginPath()
+          ctx.moveTo(element.x * scale + displayWidth / 2, element.y * scale)
+          ctx.lineTo(element.x * scale + displayWidth, element.y * scale + displayHeight / 2)
+          ctx.lineTo(element.x * scale + displayWidth / 2, element.y * scale + displayHeight)
+          ctx.lineTo(element.x * scale, element.y * scale + displayHeight / 2)
+          ctx.closePath()
+          ctx.fill()
+        } else if (element.shapeType === 'star') {
+          ctx.beginPath()
+          const spikes = 5
+          const outerRadius = displayWidth / 2
+          const innerRadius = outerRadius / 2
+          for (let i = 0; i < spikes * 2; i++) {
+            const radius = i % 2 === 0 ? outerRadius : innerRadius
+            const angle = (Math.PI / spikes) * i - Math.PI / 2
+            const x = element.x * scale + displayWidth / 2 + Math.cos(angle) * radius
+            const y = element.y * scale + displayHeight / 2 + Math.sin(angle) * radius
+            if (i === 0) ctx.moveTo(x, y)
+            else ctx.lineTo(x, y)
+          }
+          ctx.closePath()
+          ctx.fill()
+        } else if (element.shapeType === 'heart') {
+          ctx.beginPath()
+          const width = displayWidth
+          const height = displayHeight
+          ctx.moveTo(element.x * scale + width / 2, element.y * scale + height * 0.85)
+          ctx.bezierCurveTo(element.x * scale + width, element.y * scale + height * 0.35, element.x * scale + width * 0.2, element.y * scale + height * 0.3, element.x * scale + width * 0.2, element.y * scale + height * 0.5)
+          ctx.bezierCurveTo(element.x * scale, element.y * scale + height * 0.55, element.x * scale, element.y * scale + height * 0.75, element.x * scale + width * 0.2, element.y * scale + height * 0.85)
+          ctx.lineTo(element.x * scale + width / 2, element.y * scale + height * 0.05)
+          ctx.lineTo(element.x * scale + width * 0.8, element.y * scale + height * 0.85)
+          ctx.bezierCurveTo(element.x * scale + width, element.y * scale + height * 0.75, element.x * scale + width, element.y * scale + height * 0.55, element.x * scale + width * 0.8, element.y * scale + height * 0.5)
+          ctx.bezierCurveTo(element.x * scale + width * 0.8, element.y * scale + height * 0.3, element.x * scale + width * 0, element.y * scale + height * 0.35, element.x * scale + width / 2, element.y * scale + height * 0.85)
+          ctx.closePath()
+          ctx.fill()
+        } else if (element.shapeType === 'arrow') {
+          const width = displayWidth
+          const height = displayHeight
+          const shaftWidth = height * 0.3
+          const arrowHeadLen = height * 0.5
+          
+          ctx.beginPath()
+          ctx.moveTo(element.x * scale, element.y * scale + height / 2 - shaftWidth / 2)
+          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale + height / 2 - shaftWidth / 2)
+          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale)
+          ctx.lineTo(element.x * scale + width, element.y * scale + height / 2)
+          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale + height)
+          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale + height / 2 + shaftWidth / 2)
+          ctx.lineTo(element.x * scale, element.y * scale + height / 2 + shaftWidth / 2)
+          ctx.closePath()
+          ctx.fill()
+        }
+        
+        ctx.restore()
+      }
+    }
+
+    restoreImagesAfterExport()
+
+    hideElements.forEach(el => el.style.display = '')
 
     const link = document.createElement('a')
     link.download = `小报_${Date.now()}.png`
@@ -1947,6 +2035,61 @@ const exportImage = async () => {
   } catch (error) {
     console.error('导出失败:', error)
     alert('导出失败，请重试')
+  }
+}
+
+const processImagesForExport = async () => {
+  for (const element of elements.value) {
+    if (element.type === 'image' && (element.cropTop > 0 || element.cropBottom > 0 || element.cropLeft > 0 || element.cropRight > 0 || element.borderRadius > 0)) {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      await new Promise((resolve, reject) => {
+        img.onload = resolve
+        img.onerror = reject
+        img.src = element.src
+      })
+
+      const tempCanvas = document.createElement('canvas')
+      const ctx = tempCanvas.getContext('2d')
+      
+      const displayWidth = element.width * (element.scale / 100)
+      const displayHeight = element.height * (element.scale / 100)
+      
+      tempCanvas.width = displayWidth
+      tempCanvas.height = displayHeight
+      
+      const cropTop = (element.cropTop || 0) / 100
+      const cropBottom = (element.cropBottom || 0) / 100
+      const cropLeft = (element.cropLeft || 0) / 100
+      const cropRight = (element.cropRight || 0) / 100
+      
+      const sourceX = cropLeft * img.width
+      const sourceY = cropTop * img.height
+      const sourceWidth = (1 - cropLeft - cropRight) * img.width
+      const sourceHeight = (1 - cropTop - cropBottom) * img.height
+      
+      const borderRadius = element.borderRadius || 0
+      
+      if (borderRadius > 0) {
+        ctx.beginPath()
+        ctx.roundRect(0, 0, displayWidth, displayHeight, borderRadius)
+        ctx.clip()
+      }
+      
+      ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, displayWidth, displayHeight)
+      
+      element.exportSrc = element.src
+      element.src = tempCanvas.toDataURL('image/png')
+    }
+  }
+}
+
+const restoreImagesAfterExport = () => {
+  for (const element of elements.value) {
+    if (element.type === 'image' && element.exportSrc) {
+      element.src = element.exportSrc
+      delete element.exportSrc
+    }
   }
 }
 </script>
