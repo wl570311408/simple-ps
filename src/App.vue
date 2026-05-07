@@ -220,16 +220,22 @@
                 </div>
               </div>
             </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">圆角: {{ imageEditorData.borderRadius }}px</label>
-              <input
-                type="range"
-                v-model.number="imageEditorData.borderRadius"
-                min="0"
-                max="50"
-                class="w-full"
-                @input="updateImageElement"
-              />
+            <div class="flex items-center gap-2">
+              <div class="flex-1">
+                <label class="block text-sm text-gray-600 mb-1">圆角: {{ imageEditorData.borderRadius }}px</label>
+                <input
+                  type="range"
+                  v-model.number="imageEditorData.borderRadius"
+                  min="0"
+                  max="50"
+                  class="w-full"
+                  @input="updateImageElement"
+                />
+              </div>
+              <button
+                @click="resetImageToOriginal"
+                class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm whitespace-nowrap"
+              >重置</button>
             </div>
             <div class="flex gap-2 pt-2">
               <button
@@ -714,8 +720,9 @@
                 />
                 <img
                   :src="element.src"
-                  class="w-full h-full object-cover"
+                  class="w-full h-full"
                   draggable="false"
+                  :style="{ objectFit: 'fill' }"
                 />
                 <div
                   v-if="selectedElement?.id === element.id && hasCrop(element)"
@@ -951,6 +958,46 @@ const updateImageElement = () => {
       el.cropLeft = imageEditorData.value.cropLeft
       el.cropRight = imageEditorData.value.cropRight
     }
+  }
+}
+
+const resetImageToOriginal = () => {
+  if (selectedElement.value?.type === 'image') {
+    const el = selectedElement.value
+    saveHistory(el)
+    
+    const resetX = el.originalX !== undefined ? el.originalX : el.x
+    const resetY = el.originalY !== undefined ? el.originalY : el.y
+    const resetWidth = el.originalWidth !== undefined ? el.originalWidth : el.width
+    const resetHeight = el.originalHeight !== undefined ? el.originalHeight : el.height
+    
+    const index = elements.value.findIndex(e => e.id === el.id)
+    if (index !== -1) {
+      elements.value[index] = {
+        ...elements.value[index],
+        x: resetX,
+        y: resetY,
+        width: resetWidth,
+        height: resetHeight,
+        scale: 100,
+        borderRadius: 0,
+        cropTop: 0,
+        cropBottom: 0,
+        cropLeft: 0,
+        cropRight: 0
+      }
+      
+      selectedElement.value = elements.value[index]
+    }
+    
+    imageEditorData.value.width = resetWidth
+    imageEditorData.value.height = resetHeight
+    imageEditorData.value.scale = 100
+    imageEditorData.value.borderRadius = 0
+    imageEditorData.value.cropTop = 0
+    imageEditorData.value.cropBottom = 0
+    imageEditorData.value.cropLeft = 0
+    imageEditorData.value.cropRight = 0
   }
 }
 
@@ -1455,14 +1502,21 @@ const handleFileChange = (event) => {
         height = canvasHeight.value
       }
 
+      const posX = (canvasWidth.value - width) / 2
+      const posY = (canvasHeight.value - height) / 2
+      
       const newElement = {
         id: ++idCounter,
         type: 'image',
         src: e.target.result,
-        x: (canvasWidth.value - width) / 2,
-        y: (canvasHeight.value - height) / 2,
+        x: posX,
+        y: posY,
         width,
         height,
+        originalX: posX,
+        originalY: posY,
+        originalWidth: width,
+        originalHeight: height,
         scale: 100,
         borderRadius: defaultSettings.value.imageBorderRadius,
         cropTop: 0,
@@ -1887,19 +1941,9 @@ const exportImage = async () => {
         const cropLeft = (element.cropLeft || 0) / 100
         const cropRight = (element.cropRight || 0) / 100
         
-        const sourceX = cropLeft * img.width
-        const sourceY = cropTop * img.height
-        const sourceWidth = (1 - cropLeft - cropRight) * img.width
-        const sourceHeight = (1 - cropTop - cropBottom) * img.height
-        
         const borderRadius = (element.borderRadius || 0) * scale
         
         ctx.save()
-        if (borderRadius > 0) {
-          ctx.beginPath()
-          ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, borderRadius)
-          ctx.clip()
-        }
         
         ctx.beginPath()
         ctx.roundRect(
