@@ -126,35 +126,35 @@
           </div>
           <div class="relative">
             <button
-              @click="toggleMenu('border')"
-              class="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+              @click="toggleMenu('other')"
+              class="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
-              <Square class="w-5 h-5" />
-              <span>边框</span>
+              <MoreHorizontal class="w-5 h-5" />
+              <span>其他</span>
             </button>
-            <div v-if="showBorderMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
-              <button v-for="border in borderList" :key="border.name"
-                @click="addBorder(border); showBorderMenu = false"
-                class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+            <div v-if="showOtherMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
+              <button
+                @click="addBorder({ name: 'solid', style: 'solid', color: '#333333', radius: 4 }); showOtherMenu = false"
+                class="flex flex-col items-center gap-1 px-3 py-2 hover:bg-gray-100 rounded text-xs"
               >
-                <span class="w-8 h-8 border-2 border-gray-400 flex items-center justify-center text-xs" :style="{ borderRadius: border.radius + 'px', borderStyle: border.style, borderColor: border.color }">框</span>
-                <span>{{ border.label }}</span>
+                <Square class="w-5 h-5" />
+                <span>边框</span>
+              </button>
+              <button
+                @click="addTable(); showOtherMenu = false"
+                class="flex flex-col items-center gap-1 px-3 py-2 hover:bg-gray-100 rounded text-xs"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <line x1="3" y1="15" x2="21" y2="15"/>
+                  <line x1="9" y1="3" x2="9" y2="21"/>
+                  <line x1="15" y1="3" x2="15" y2="21"/>
+                </svg>
+                <span>表格</span>
               </button>
             </div>
           </div>
-          <button
-            @click="addTable"
-            class="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <line x1="3" y1="9" x2="21" y2="9"/>
-              <line x1="3" y1="15" x2="21" y2="15"/>
-              <line x1="9" y1="3" x2="9" y2="21"/>
-              <line x1="15" y1="3" x2="15" y2="21"/>
-            </svg>
-            <span>表格</span>
-          </button>
           <button
             @click="exportImage"
             class="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
@@ -343,6 +343,60 @@
             </div>
           </div>
 
+          <div v-else-if="selectedElement.type === 'border'" class="space-y-4">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">边框颜色</label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="color"
+                  v-model="borderEditorData.borderColor"
+                  @input="updateBorderElement"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 flex-shrink-0"
+                />
+                <input
+                  type="text"
+                  v-model="borderEditorData.borderColor"
+                  @input="updateBorderElement"
+                  class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">边框宽度: {{ borderEditorData.borderWidth }}px</label>
+              <input
+                type="range"
+                v-model.number="borderEditorData.borderWidth"
+                min="1"
+                max="10"
+                class="w-full"
+                @input="updateBorderElement"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">圆角: {{ borderEditorData.borderRadius }}px</label>
+              <input
+                type="range"
+                v-model.number="borderEditorData.borderRadius"
+                min="0"
+                max="50"
+                class="w-full"
+                @input="updateBorderElement"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">边框样式</label>
+              <select
+                v-model="borderEditorData.borderStyle"
+                @change="updateBorderElement"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              >
+                <option value="solid">实线</option>
+                <option value="dashed">虚线</option>
+                <option value="dotted">点线</option>
+                <option value="double">双线</option>
+              </select>
+            </div>
+          </div>
           <div v-else-if="selectedElement.type === 'table'" class="space-y-4">
             <div class="grid grid-cols-2 gap-2">
               <div>
@@ -984,7 +1038,7 @@
                 v-else-if="element.type === 'border'" 
                 class="w-full h-full flex items-center justify-center"
                 :style="{ 
-                  border: `2px ${element.borderStyle} ${element.borderColor}`,
+                  border: `${element.borderWidth || 2}px ${element.borderStyle} ${element.borderColor}`,
                   borderRadius: element.borderRadius + 'px'
                 }"
               >
@@ -1090,7 +1144,7 @@ import {
   ChevronUp, ChevronDown, Trash2, Palette, X,
   AlignLeft, AlignCenter, AlignRight, Bold, Italic,
   Edit3, Copy, Image as ImageIcon, Upload, Square, Circle, Settings,
-  Triangle, Star, Heart, ArrowRight, Hexagon
+  Triangle, Star, Heart, ArrowRight, Hexagon, MoreHorizontal
 } from 'lucide-vue-next'
 import html2canvas from 'html2canvas'
 
@@ -1111,12 +1165,14 @@ const showShapeMenu = ref(false)
 const showIconMenu = ref(false)
 const showStickerMenu = ref(false)
 const showBorderMenu = ref(false)
+const showOtherMenu = ref(false)
 
 const toggleMenu = (menuName) => {
   showShapeMenu.value = menuName === 'shape' ? !showShapeMenu.value : false
   showIconMenu.value = menuName === 'icon' ? !showIconMenu.value : false
   showStickerMenu.value = menuName === 'sticker' ? !showStickerMenu.value : false
   showBorderMenu.value = menuName === 'border' ? !showBorderMenu.value : false
+  showOtherMenu.value = menuName === 'other' ? !showOtherMenu.value : false
 }
 
 const shapeEditorData = ref({
@@ -1195,6 +1251,13 @@ const tableEditorData = ref({
   fontSize: 14,
   fontColor: '#333333',
   cells: []
+})
+
+const borderEditorData = ref({
+  borderColor: '#333333',
+  borderWidth: 2,
+  borderRadius: 4,
+  borderStyle: 'solid'
 })
 
 const textEditorData = ref({
@@ -1936,6 +1999,16 @@ const updateShapeElement = () => {
   }
 }
 
+const updateBorderElement = () => {
+  if (selectedElement.value && selectedElement.value.type === 'border') {
+    saveHistory(selectedElement.value)
+    selectedElement.value.borderColor = borderEditorData.value.borderColor
+    selectedElement.value.borderWidth = borderEditorData.value.borderWidth
+    selectedElement.value.borderRadius = borderEditorData.value.borderRadius
+    selectedElement.value.borderStyle = borderEditorData.value.borderStyle
+  }
+}
+
 const updateTableElement = () => {
   if (selectedElement.value && selectedElement.value.type === 'table') {
     saveHistory(selectedElement.value)
@@ -2122,6 +2195,13 @@ const selectElement = (element) => {
     shapeEditorData.value = {
       color: element.color,
       blur: element.blur || 0
+    }
+  } else if (element.type === 'border') {
+    borderEditorData.value = {
+      borderColor: element.borderColor,
+      borderWidth: element.borderWidth || 2,
+      borderRadius: element.borderRadius || 4,
+      borderStyle: element.borderStyle || 'solid'
     }
   } else if (element.type === 'table') {
     tableEditorData.value = {
@@ -2522,7 +2602,42 @@ const exportImage = async () => {
         const displayWidth = element.width * (element.scale / 100) * scale
         const displayHeight = element.height * (element.scale / 100) * scale
         
-        ctx.fillText(element.text || ' ', element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2)
+        const text = element.text || ' '
+        const lineHeight = element.fontSize * scale * 1.2
+        const maxLines = Math.floor(displayHeight / lineHeight)
+        
+        const allLines = []
+        const manualLines = text.split('\n')
+        
+        for (const manualLine of manualLines) {
+          if (ctx.measureText(manualLine).width <= displayWidth - 8 * scale) {
+            allLines.push(manualLine)
+          } else {
+            let currentLine = ''
+            const words = manualLine.split('')
+            for (const word of words) {
+              const testLine = currentLine + word
+              if (ctx.measureText(testLine).width > displayWidth - 8 * scale && currentLine) {
+                allLines.push(currentLine)
+                currentLine = word
+              } else {
+                currentLine = testLine
+              }
+            }
+            if (currentLine) {
+              allLines.push(currentLine)
+            }
+          }
+        }
+        
+        const visibleLines = allLines.slice(0, maxLines)
+        const totalHeight = visibleLines.length * lineHeight
+        const startY = element.y * scale + displayHeight / 2 - totalHeight / 2 + lineHeight / 2
+        
+        for (let i = 0; i < visibleLines.length; i++) {
+          ctx.fillText(visibleLines[i], element.x * scale + displayWidth / 2, startY + i * lineHeight)
+        }
+        
         ctx.restore()
       } else if (element.type === 'shape') {
         ctx.save()
@@ -2764,9 +2879,20 @@ const exportImage = async () => {
         ctx.save()
         const displayWidth = element.width * (element.scale / 100) * scale
         const displayHeight = element.height * (element.scale / 100) * scale
+        const borderWidth = (element.borderWidth || 2) * scale
         ctx.strokeStyle = element.borderColor
-        ctx.lineWidth = 2 * scale
-        ctx.setLineDash(element.borderStyle === 'dashed' ? [8 * scale, 4 * scale] : element.borderStyle === 'dotted' ? [2 * scale, 2 * scale] : [])
+        ctx.lineWidth = borderWidth
+        
+        if (element.borderStyle === 'dashed') {
+          ctx.setLineDash([8 * scale, 4 * scale])
+        } else if (element.borderStyle === 'dotted') {
+          ctx.setLineDash([2 * scale, 2 * scale])
+        } else if (element.borderStyle === 'double') {
+          ctx.setLineDash([borderWidth * 3, borderWidth])
+        } else {
+          ctx.setLineDash([])
+        }
+        
         ctx.beginPath()
         ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, (element.borderRadius || 0) * scale)
         ctx.stroke()
