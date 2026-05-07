@@ -12,22 +12,22 @@
             class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
             <ImagePlus class="w-5 h-5" />
-            <span>添加图片</span>
+            <span>图片</span>
           </button>
           <button
             @click="addText"
             class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
           >
             <Type class="w-5 h-5" />
-            <span>添加文字</span>
+            <span>文字</span>
           </button>
           <div class="relative">
             <button
-              @click="showShapeMenu = !showShapeMenu"
+              @click="toggleMenu('shape')"
               class="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
             >
-              <Square class="w-5 h-5" />
-              <span>添加形状</span>
+              <Triangle class="w-5 h-5" />
+              <span>形状</span>
             </button>
             <div v-if="showShapeMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
             <button
@@ -88,12 +88,79 @@
             </button>
             </div>
           </div>
+          <div class="relative">
+            <button
+              @click="toggleMenu('icon')"
+              class="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              <Star class="w-5 h-5" />
+              <span>图标</span>
+            </button>
+            <div v-if="showIconMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-4 gap-1 min-w-[200px]">
+              <button v-for="icon in iconList" :key="icon.name"
+                @click="addIcon(icon.name); showIconMenu = false"
+                class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs"
+              >
+                <component :is="icon.component" class="w-5 h-5" />
+                <span>{{ icon.label }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="relative">
+            <button
+              @click="toggleMenu('sticker')"
+              class="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+            >
+              <Heart class="w-5 h-5" />
+              <span>贴纸</span>
+            </button>
+            <div v-if="showStickerMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-4 gap-1 min-w-[200px]">
+              <button v-for="sticker in stickerList" :key="sticker.name"
+                @click="addSticker(sticker); showStickerMenu = false"
+                class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs"
+              >
+                <span class="text-2xl">{{ sticker.emoji }}</span>
+                <span>{{ sticker.label }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="relative">
+            <button
+              @click="toggleMenu('border')"
+              class="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+            >
+              <Square class="w-5 h-5" />
+              <span>边框</span>
+            </button>
+            <div v-if="showBorderMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
+              <button v-for="border in borderList" :key="border.name"
+                @click="addBorder(border); showBorderMenu = false"
+                class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              >
+                <span class="w-8 h-8 border-2 border-gray-400 flex items-center justify-center text-xs" :style="{ borderRadius: border.radius + 'px', borderStyle: border.style, borderColor: border.color }">框</span>
+                <span>{{ border.label }}</span>
+              </button>
+            </div>
+          </div>
+          <button
+            @click="addTable"
+            class="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/>
+              <line x1="3" y1="15" x2="21" y2="15"/>
+              <line x1="9" y1="3" x2="9" y2="21"/>
+              <line x1="15" y1="3" x2="15" y2="21"/>
+            </svg>
+            <span>表格</span>
+          </button>
           <button
             @click="exportImage"
             class="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
           >
             <Download class="w-5 h-5" />
-            <span>导出图片</span>
+            <span>导出</span>
           </button>
         </div>
       </div>
@@ -107,7 +174,7 @@
             图层管理
           </h3>
           <div v-if="elements.length === 0" class="text-gray-400 text-sm">
-            暂无元素，请添加图片或文字
+            暂无元素，请图片或文字
           </div>
           <div v-else class="space-y-2 max-h-80 overflow-y-auto">
             <div
@@ -123,7 +190,18 @@
             >
               <ImageIcon v-if="element.type === 'image'" :size="20" class="text-gray-600" />
               <Type v-else-if="element.type === 'text'" class="w-5 h-5 text-gray-600" />
-              <Square v-else class="w-5 h-5 text-gray-600" />
+              <Triangle v-else-if="element.type === 'shape'" class="w-5 h-5 text-gray-600" :style="{ color: element.color }" />
+              <Star v-else-if="element.type === 'icon'" class="w-5 h-5 text-gray-600" />
+              <Heart v-else-if="element.type === 'sticker'" class="w-5 h-5 text-pink-500" />
+              <Square v-else-if="element.type === 'border'" class="w-5 h-5 text-teal-500" />
+              <svg v-else-if="element.type === 'table'" class="w-5 h-5 text-cyan-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="3" y1="15" x2="21" y2="15"/>
+                <line x1="9" y1="3" x2="9" y2="21"/>
+                <line x1="15" y1="3" x2="15" y2="21"/>
+              </svg>
+              <Circle v-else class="w-5 h-5 text-gray-600" />
               <span class="text-sm flex-1 truncate" :style="element.type === 'shape' ? { color: element.color } : {}">
                 {{ getLayerName(element) }}
               </span>
@@ -236,6 +314,133 @@
                 @click="resetImageToOriginal"
                 class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm whitespace-nowrap"
               >重置</button>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button
+                @click="undo"
+                :disabled="historyIndex <= 0"
+                :class="[
+                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                ]"
+              >后退</button>
+              <button
+                @click="redo"
+                :disabled="historyIndex >= history.length - 1"
+                :class="[
+                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                ]"
+              >前进</button>
+              <button
+                @click="duplicateElement"
+                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
+              >复制</button>
+              <button
+                @click="deleteElement(selectedElement)"
+                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
+              >删除</button>
+            </div>
+          </div>
+
+          <div v-else-if="selectedElement.type === 'table'" class="space-y-4">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">行数: {{ tableEditorData.rows }}</label>
+                <input
+                  type="number"
+                  v-model.number="tableEditorData.rows"
+                  min="1"
+                  max="10"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  @change="updateTableRows"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">列数: {{ tableEditorData.cols }}</label>
+                <input
+                  type="number"
+                  v-model.number="tableEditorData.cols"
+                  min="1"
+                  max="10"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  @change="updateTableCols"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">边框颜色</label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="color"
+                  v-model="tableEditorData.borderColor"
+                  @input="updateTableElement"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 flex-shrink-0"
+                />
+                <input
+                  type="text"
+                  v-model="tableEditorData.borderColor"
+                  @input="updateTableElement"
+                  class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">边框宽度: {{ tableEditorData.borderWidth }}px</label>
+              <input
+                type="range"
+                v-model.number="tableEditorData.borderWidth"
+                min="1"
+                max="10"
+                class="w-full"
+                @input="updateTableElement"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">字号: {{ tableEditorData.fontSize }}px</label>
+                <input
+                  type="number"
+                  v-model.number="tableEditorData.fontSize"
+                  min="8"
+                  max="48"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  @input="updateTableElement"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
+                <input
+                  type="color"
+                  v-model="tableEditorData.fontColor"
+                  @input="updateTableElement"
+                  class="w-full h-10 rounded-lg cursor-pointer border border-gray-300"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-2">编辑单元格内容</label>
+              <div class="max-h-48 overflow-auto">
+                <table class="w-full border-collapse">
+                  <tbody>
+                    <tr v-for="(row, rowIndex) in tableEditorData.rows" :key="rowIndex">
+                      <td 
+                        v-for="(col, colIndex) in tableEditorData.cols" 
+                        :key="colIndex"
+                        class="border border-gray-300 p-1"
+                      >
+                        <input
+                          type="text"
+                          :value="getTableCellValue(rowIndex, colIndex)"
+                          @input="updateTableCell(rowIndex, colIndex, $event)"
+                          class="w-full px-1 py-0.5 text-xs border-none outline-none bg-transparent"
+                          placeholder="单元格"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
             <div class="flex gap-2 pt-2">
               <button
@@ -765,6 +970,55 @@
                   <div v-else :style="getShapeInnerStyle(element)"></div>
                 </div>
               </div>
+              <div v-else-if="element.type === 'icon'" class="w-full h-full flex items-center justify-center">
+                <component 
+                  :is="iconList.find(i => i.name === element.iconName)?.component || Star" 
+                  class="w-full h-full"
+                  :style="{ color: element.color }"
+                />
+              </div>
+              <div v-else-if="element.type === 'sticker'" class="w-full h-full flex items-center justify-center" :style="{ fontSize: `${Math.min(element.width, element.height) * (element.scale / 100) * 0.8}px` }">
+                {{ element.emoji }}
+              </div>
+              <div 
+                v-else-if="element.type === 'border'" 
+                class="w-full h-full flex items-center justify-center"
+                :style="{ 
+                  border: `2px ${element.borderStyle} ${element.borderColor}`,
+                  borderRadius: element.borderRadius + 'px'
+                }"
+              >
+                <span class="text-gray-400 text-sm">添加内容</span>
+              </div>
+              <div 
+                v-else-if="element.type === 'table'" 
+                class="w-full h-full overflow-hidden"
+                :style="{ borderRadius: '4px', border: `${element.borderWidth}px solid ${element.borderColor}` }"
+              >
+                <div class="w-full h-full grid" :style="{ gridTemplateColumns: `repeat(${element.cols}, 1fr)`, gridAutoRows: `${100 / element.rows}%` }">
+                  <div 
+                    v-for="(cell, index) in element.cells" 
+                    :key="index"
+                    class="relative"
+                    :style="{ 
+                      borderRight: (index + 1) % element.cols !== 0 ? `${element.borderWidth}px solid ${element.borderColor}` : 'none',
+                      borderBottom: index < element.cells.length - element.cols ? `${element.borderWidth}px solid ${element.borderColor}` : 'none'
+                    }"
+                  >
+                    <div 
+                      class="absolute inset-0 flex items-center justify-center overflow-hidden"
+                      :style="{ 
+                        padding: '2px',
+                        fontSize: `${element.fontSize || 14}px`,
+                        color: element.fontColor || '#333333',
+                        wordBreak: 'break-all'
+                      }"
+                    >
+                      {{ cell?.text || '' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div
                 v-if="selectedElement?.id === element.id"
@@ -854,6 +1108,17 @@ const canvasScale = ref(100)
 const elements = ref([])
 const selectedElement = ref(null)
 const showShapeMenu = ref(false)
+const showIconMenu = ref(false)
+const showStickerMenu = ref(false)
+const showBorderMenu = ref(false)
+
+const toggleMenu = (menuName) => {
+  showShapeMenu.value = menuName === 'shape' ? !showShapeMenu.value : false
+  showIconMenu.value = menuName === 'icon' ? !showIconMenu.value : false
+  showStickerMenu.value = menuName === 'sticker' ? !showStickerMenu.value : false
+  showBorderMenu.value = menuName === 'border' ? !showBorderMenu.value : false
+}
+
 const shapeEditorData = ref({
   color: '#3b82f6',
   blur: 0
@@ -865,6 +1130,51 @@ const defaultSettings = ref({
   textColor: '#333333'
 })
 
+const iconList = [
+  { name: 'star', label: '星星', component: Star },
+  { name: 'heart', label: '心形', component: Heart },
+  { name: 'circle', label: '圆形', component: Circle },
+  { name: 'triangle', label: '三角', component: Triangle },
+  { name: 'square', label: '方形', component: Square },
+  { name: 'hexagon', label: '六角', component: Hexagon },
+  { name: 'arrow', label: '箭头', component: ArrowRight },
+  { name: 'download', label: '下载', component: Download },
+  { name: 'upload', label: '上传', component: Upload },
+  { name: 'edit', label: '编辑', component: Edit3 },
+  { name: 'copy', label: '复制', component: Copy },
+  { name: 'settings', label: '设置', component: Settings }
+]
+
+const stickerList = [
+  { name: 'happy', label: '开心', emoji: '😊' },
+  { name: 'love', label: '爱心', emoji: '❤️' },
+  { name: 'star', label: '星星', emoji: '⭐' },
+  { name: 'fire', label: '火焰', emoji: '🔥' },
+  { name: 'sparkle', label: '闪光', emoji: '✨' },
+  { name: 'thumbsup', label: '点赞', emoji: '👍' },
+  { name: 'heart_eyes', label: '花痴', emoji: '😍' },
+  { name: 'laugh', label: '大笑', emoji: '😂' },
+  { name: 'cool', label: '酷', emoji: '😎' },
+  { name: 'sad', label: '难过', emoji: '😢' },
+  { name: 'angry', label: '生气', emoji: '😠' },
+  { name: 'surprised', label: '惊讶', emoji: '😮' },
+  { name: 'celebrate', label: '庆祝', emoji: '🎉' },
+  { name: 'confetti', label: '彩带', emoji: '🎊' },
+  { name: 'cake', label: '蛋糕', emoji: '🎂' },
+  { name: 'party', label: '派对', emoji: '🥳' }
+]
+
+const borderList = [
+  { name: 'solid', label: '实线', style: 'solid', color: '#333333', radius: 0 },
+  { name: 'dashed', label: '虚线', style: 'dashed', color: '#333333', radius: 0 },
+  { name: 'dotted', label: '点线', style: 'dotted', color: '#333333', radius: 0 },
+  { name: 'double', label: '双线', style: 'double', color: '#333333', radius: 0 },
+  { name: 'rounded', label: '圆角', style: 'solid', color: '#333333', radius: 8 },
+  { name: 'rounded-lg', label: '大圆角', style: 'solid', color: '#333333', radius: 16 },
+  { name: 'red', label: '红色', style: 'solid', color: '#ef4444', radius: 0 },
+  { name: 'blue', label: '蓝色', style: 'solid', color: '#3b82f6', radius: 0 }
+]
+
 const imageEditorData = ref({
   src: '',
   scale: 100,
@@ -875,6 +1185,16 @@ const imageEditorData = ref({
   cropBottom: 0,
   cropLeft: 0,
   cropRight: 0
+})
+
+const tableEditorData = ref({
+  rows: 3,
+  cols: 3,
+  borderColor: '#333333',
+  borderWidth: 1,
+  fontSize: 14,
+  fontColor: '#333333',
+  cells: []
 })
 
 const textEditorData = ref({
@@ -1060,6 +1380,56 @@ const getLayerName = (element) => {
       arrow: '箭头'
     }
     return shapeNames[element.shapeType] || '形状'
+  } else if (element.type === 'icon') {
+    const iconNames = {
+      star: '星星',
+      heart: '心形',
+      circle: '圆形',
+      triangle: '三角',
+      square: '方形',
+      hexagon: '六角',
+      arrow: '箭头',
+      download: '下载',
+      upload: '上传',
+      edit: '编辑',
+      copy: '复制',
+      settings: '设置'
+    }
+    return iconNames[element.iconName] || '图标'
+  } else if (element.type === 'sticker') {
+    const stickerNames = {
+      happy: '开心',
+      love: '爱心',
+      star: '星星',
+      fire: '火焰',
+      sparkle: '闪光',
+      thumbsup: '点赞',
+      heart_eyes: '花痴',
+      laugh: '大笑',
+      cool: '酷',
+      sad: '难过',
+      angry: '生气',
+      surprised: '惊讶',
+      celebrate: '庆祝',
+      confetti: '彩带',
+      cake: '蛋糕',
+      party: '派对'
+    }
+    return stickerNames[element.stickerName] || '贴纸'
+  } else if (element.type === 'border') {
+    const borderNames = {
+      solid: '实线边框',
+      dashed: '虚线边框',
+      dotted: '点线边框',
+      double: '双线边框',
+      rounded: '圆角边框',
+      'rounded-lg': '大圆角边框',
+      red: '红色边框',
+      blue: '蓝色边框'
+    }
+    return borderNames[element.borderName] || '边框'
+  } else if (element.type === 'table') {
+    return '表格'
   }
   return '元素'
 }
@@ -1277,6 +1647,10 @@ if (typeof window !== 'undefined') {
 
 const handleKeyDown = (event) => {
   if (!selectedElement.value) return
+  
+  const target = event.target
+  const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
+  if (isInput) return
 
   const step = 1
   let updated = false
@@ -1343,6 +1717,101 @@ const addShape = (shapeType) => {
     scale: 100,
     color: shapeEditorData.value.color,
     blur: 0,
+    zIndex: elements.value.length + 1
+  }
+  
+  elements.value.push(newElement)
+  selectElement(newElement)
+}
+
+const addIcon = (iconName) => {
+  const width = 60
+  const height = 60
+  const icon = iconList.find(i => i.name === iconName)
+  
+  const newElement = {
+    id: ++idCounter,
+    type: 'icon',
+    iconName,
+    iconComponent: icon?.name || 'smile',
+    x: (canvasWidth.value - width) / 2,
+    y: (canvasHeight.value - height) / 2,
+    width,
+    height,
+    scale: 100,
+    color: '#333333',
+    zIndex: elements.value.length + 1
+  }
+  
+  elements.value.push(newElement)
+  selectElement(newElement)
+}
+
+const addSticker = (sticker) => {
+  const width = 80
+  const height = 80
+  
+  const newElement = {
+    id: ++idCounter,
+    type: 'sticker',
+    stickerName: sticker.name,
+    emoji: sticker.emoji,
+    x: (canvasWidth.value - width) / 2,
+    y: (canvasHeight.value - height) / 2,
+    width,
+    height,
+    scale: 100,
+    zIndex: elements.value.length + 1
+  }
+  
+  elements.value.push(newElement)
+  selectElement(newElement)
+}
+
+const addBorder = (border) => {
+  const width = 200
+  const height = 150
+  
+  const newElement = {
+    id: ++idCounter,
+    type: 'border',
+    borderName: border.name,
+    borderStyle: border.style,
+    borderColor: border.color,
+    borderRadius: border.radius,
+    x: (canvasWidth.value - width) / 2,
+    y: (canvasHeight.value - height) / 2,
+    width,
+    height,
+    scale: 100,
+    zIndex: elements.value.length + 1
+  }
+  
+  elements.value.push(newElement)
+  selectElement(newElement)
+}
+
+const addTable = () => {
+  const width = 250
+  const height = 150
+  
+  const newElement = {
+    id: ++idCounter,
+    type: 'table',
+    rows: 3,
+    cols: 3,
+    cells: [
+      { text: '单元格1' }, { text: '单元格2' }, { text: '单元格3' },
+      { text: '单元格4' }, { text: '单元格5' }, { text: '单元格6' },
+      { text: '单元格7' }, { text: '单元格8' }, { text: '单元格9' }
+    ],
+    x: (canvasWidth.value - width) / 2,
+    y: (canvasHeight.value - height) / 2,
+    width,
+    height,
+    scale: 100,
+    borderColor: '#333333',
+    borderWidth: 1,
     zIndex: elements.value.length + 1
   }
   
@@ -1467,6 +1936,82 @@ const updateShapeElement = () => {
   }
 }
 
+const updateTableElement = () => {
+  if (selectedElement.value && selectedElement.value.type === 'table') {
+    saveHistory(selectedElement.value)
+    selectedElement.value.borderColor = tableEditorData.value.borderColor
+    selectedElement.value.borderWidth = tableEditorData.value.borderWidth
+    selectedElement.value.fontSize = tableEditorData.value.fontSize
+    selectedElement.value.fontColor = tableEditorData.value.fontColor
+  }
+}
+
+const updateTableRows = () => {
+  if (selectedElement.value && selectedElement.value.type === 'table') {
+    saveHistory(selectedElement.value)
+    const oldRows = selectedElement.value.rows
+    const oldCols = selectedElement.value.cols
+    const newRows = tableEditorData.value.rows
+    
+    const newCells = []
+    for (let row = 0; row < newRows; row++) {
+      for (let col = 0; col < oldCols; col++) {
+        const oldIndex = row * oldCols + col
+        if (row < oldRows && selectedElement.value.cells[oldIndex]) {
+          newCells.push({ text: selectedElement.value.cells[oldIndex].text })
+        } else {
+          newCells.push({ text: '' })
+        }
+      }
+    }
+    
+    selectedElement.value.rows = newRows
+    selectedElement.value.cells = newCells
+  }
+}
+
+const updateTableCols = () => {
+  if (selectedElement.value && selectedElement.value.type === 'table') {
+    saveHistory(selectedElement.value)
+    const oldRows = selectedElement.value.rows
+    const oldCols = selectedElement.value.cols
+    const newCols = tableEditorData.value.cols
+    
+    const newCells = []
+    for (let row = 0; row < oldRows; row++) {
+      for (let col = 0; col < newCols; col++) {
+        const oldIndex = row * oldCols + col
+        if (col < oldCols && selectedElement.value.cells[oldIndex]) {
+          newCells.push({ text: selectedElement.value.cells[oldIndex].text })
+        } else {
+          newCells.push({ text: '' })
+        }
+      }
+    }
+    
+    selectedElement.value.cols = newCols
+    selectedElement.value.cells = newCells
+  }
+}
+
+const getTableCellValue = (row, col) => {
+  if (selectedElement.value && selectedElement.value.type === 'table') {
+    const index = row * selectedElement.value.cols + col
+    return selectedElement.value.cells[index]?.text || ''
+  }
+  return ''
+}
+
+const updateTableCell = (row, col, event) => {
+  if (selectedElement.value && selectedElement.value.type === 'table') {
+    saveHistory(selectedElement.value)
+    const index = row * selectedElement.value.cols + col
+    if (selectedElement.value.cells[index]) {
+      selectedElement.value.cells[index].text = event.target.value
+    }
+  }
+}
+
 const getTextStyle = (element) => {
   return {
     fontFamily: element.fontFamily,
@@ -1577,6 +2122,16 @@ const selectElement = (element) => {
     shapeEditorData.value = {
       color: element.color,
       blur: element.blur || 0
+    }
+  } else if (element.type === 'table') {
+    tableEditorData.value = {
+      rows: element.rows,
+      cols: element.cols,
+      borderColor: element.borderColor,
+      borderWidth: element.borderWidth,
+      fontSize: element.fontSize || 14,
+      fontColor: element.fontColor || '#333333',
+      cells: element.cells
     }
   } else {
     textEditorData.value = {
@@ -1978,6 +2533,7 @@ const exportImage = async () => {
         const blur = (element.blur || 0) * scale
         if (blur > 0) {
           ctx.filter = `blur(${blur}px)`
+          // 下面两行去掉好像也没问题
           ctx.shadowColor = element.color
           ctx.shadowBlur = blur * 2
         }
@@ -2059,6 +2615,242 @@ const exportImage = async () => {
         }
         
         ctx.restore()
+      } else if (element.type === 'icon') {
+        ctx.save()
+        const displayWidth = element.width * (element.scale / 100) * scale
+        const displayHeight = element.height * (element.scale / 100) * scale
+        ctx.strokeStyle = element.color
+        ctx.lineWidth = 2 * scale
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        
+        const cx = element.x * scale + displayWidth / 2
+        const cy = element.y * scale + displayHeight / 2
+        const size = Math.min(displayWidth, displayHeight) * 0.7
+        
+        const drawIcon = (name) => {
+          switch(name) {
+            case 'star':
+              ctx.beginPath()
+              for(let i = 0; i < 5; i++) {
+                const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2
+                const x = cx + Math.cos(angle) * size / 2
+                const y = cy + Math.sin(angle) * size / 2
+                if(i === 0) ctx.moveTo(x, y)
+                else ctx.lineTo(x, y)
+              }
+              ctx.closePath()
+              ctx.stroke()
+              break
+            case 'heart':
+              ctx.beginPath()
+              ctx.moveTo(cx, cy + size / 4)
+              ctx.bezierCurveTo(cx - size / 2, cy - size / 4, cx - size / 2, cy + size / 6, cx, cy + size / 2)
+              ctx.bezierCurveTo(cx + size / 2, cy + size / 6, cx + size / 2, cy - size / 4, cx, cy + size / 4)
+              ctx.closePath()
+              ctx.stroke()
+              break
+            case 'circle':
+              ctx.beginPath()
+              ctx.arc(cx, cy, size / 2, 0, Math.PI * 2)
+              ctx.stroke()
+              break
+            case 'triangle':
+              ctx.beginPath()
+              ctx.moveTo(cx, cy - size / 2)
+              ctx.lineTo(cx - size / 2, cy + size / 2)
+              ctx.lineTo(cx + size / 2, cy + size / 2)
+              ctx.closePath()
+              ctx.stroke()
+              break
+            case 'square':
+              ctx.beginPath()
+              ctx.rect(cx - size / 2, cy - size / 2, size, size)
+              ctx.stroke()
+              break
+            case 'hexagon':
+              ctx.beginPath()
+              for(let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI) / 3 - Math.PI / 2
+                const x = cx + Math.cos(angle) * size / 2
+                const y = cy + Math.sin(angle) * size / 2
+                if(i === 0) ctx.moveTo(x, y)
+                else ctx.lineTo(x, y)
+              }
+              ctx.closePath()
+              ctx.stroke()
+              break
+            case 'arrow':
+              ctx.beginPath()
+              ctx.moveTo(cx - size / 2, cy)
+              ctx.lineTo(cx + size / 4, cy)
+              ctx.moveTo(cx + size / 4, cy - size / 3)
+              ctx.lineTo(cx + size / 2, cy)
+              ctx.lineTo(cx + size / 4, cy + size / 3)
+              ctx.stroke()
+              break
+            case 'download':
+              ctx.beginPath()
+              ctx.moveTo(cx - size / 2, cy + size / 3)
+              ctx.lineTo(cx, cy - size / 3)
+              ctx.lineTo(cx + size / 2, cy + size / 3)
+              ctx.moveTo(cx - size / 3, cy + size / 3)
+              ctx.lineTo(cx - size / 3, cy + size / 2)
+              ctx.lineTo(cx + size / 3, cy + size / 2)
+              ctx.lineTo(cx + size / 3, cy + size / 3)
+              ctx.stroke()
+              break
+            case 'upload':
+              ctx.beginPath()
+              ctx.moveTo(cx - size / 2, cy - size / 3)
+              ctx.lineTo(cx, cy + size / 3)
+              ctx.lineTo(cx + size / 2, cy - size / 3)
+              ctx.moveTo(cx - size / 3, cy - size / 3)
+              ctx.lineTo(cx - size / 3, cy - size / 2)
+              ctx.lineTo(cx + size / 3, cy - size / 2)
+              ctx.lineTo(cx + size / 3, cy - size / 3)
+              ctx.stroke()
+              break
+            case 'edit':
+              ctx.beginPath()
+              ctx.rect(cx - size / 2, cy - size / 4, size, size * 0.75)
+              ctx.stroke()
+              ctx.beginPath()
+              ctx.moveTo(cx + size / 4, cy - size / 2)
+              ctx.lineTo(cx + size / 2, cy - size / 4)
+              ctx.lineTo(cx - size / 4, cy + size / 2)
+              ctx.lineTo(cx - size / 2, cy + size / 4)
+              ctx.closePath()
+              ctx.stroke()
+              break
+            case 'copy':
+              ctx.beginPath()
+              ctx.rect(cx - size / 2, cy - size / 2, size, size * 0.8)
+              ctx.stroke()
+              ctx.beginPath()
+              ctx.rect(cx - size / 4, cy + size / 4, size / 2, size * 0.4)
+              ctx.stroke()
+              break
+            case 'settings':
+              ctx.beginPath()
+              ctx.arc(cx, cy - size / 3, size / 6, 0, Math.PI * 2)
+              ctx.stroke()
+              ctx.beginPath()
+              ctx.arc(cx, cy, size / 6, 0, Math.PI * 2)
+              ctx.stroke()
+              ctx.beginPath()
+              ctx.arc(cx - size / 3 * 0.866, cy + size / 6, size / 6, 0, Math.PI * 2)
+              ctx.stroke()
+              break
+            default:
+              ctx.beginPath()
+              ctx.arc(cx, cy, size / 2, 0, Math.PI * 2)
+              ctx.stroke()
+          }
+        }
+        
+        drawIcon(element.iconName)
+        ctx.restore()
+      } else if (element.type === 'sticker') {
+        ctx.save()
+        const displayWidth = element.width * (element.scale / 100) * scale
+        const displayHeight = element.height * (element.scale / 100) * scale
+        ctx.font = `${Math.min(displayWidth, displayHeight) * 0.8}px serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(element.emoji, element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2)
+        ctx.restore()
+      } else if (element.type === 'border') {
+        ctx.save()
+        const displayWidth = element.width * (element.scale / 100) * scale
+        const displayHeight = element.height * (element.scale / 100) * scale
+        ctx.strokeStyle = element.borderColor
+        ctx.lineWidth = 2 * scale
+        ctx.setLineDash(element.borderStyle === 'dashed' ? [8 * scale, 4 * scale] : element.borderStyle === 'dotted' ? [2 * scale, 2 * scale] : [])
+        ctx.beginPath()
+        ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, (element.borderRadius || 0) * scale)
+        ctx.stroke()
+        ctx.restore()
+      } else if (element.type === 'table') {
+        ctx.save()
+        const displayWidth = element.width * (element.scale / 100) * scale
+        const displayHeight = element.height * (element.scale / 100) * scale
+        const borderColor = element.borderColor || '#333333'
+        const borderWidth = (element.borderWidth || 1) * scale
+        const fontColor = element.fontColor || '#333333'
+        const fontSize = (element.fontSize || 14) * scale
+        ctx.strokeStyle = borderColor
+        ctx.fillStyle = fontColor
+        ctx.lineWidth = borderWidth
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        
+        const cellWidth = displayWidth / element.cols
+        const cellHeight = displayHeight / element.rows
+        
+        ctx.font = `${fontSize}px sans-serif`
+        
+        const borderRadius = (element.borderRadius || 4) * scale
+        ctx.beginPath()
+        ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, borderRadius)
+        ctx.stroke()
+        
+        for (let row = 0; row < element.rows; row++) {
+          for (let col = 0; col < element.cols; col++) {
+            const x = element.x * scale + col * cellWidth
+            const y = element.y * scale + row * cellHeight
+            
+            if (col < element.cols - 1) {
+              ctx.beginPath()
+              ctx.moveTo(x + cellWidth, y)
+              ctx.lineTo(x + cellWidth, y + cellHeight)
+              ctx.stroke()
+            }
+            
+            if (row < element.rows - 1) {
+              ctx.beginPath()
+              ctx.moveTo(x, y + cellHeight)
+              ctx.lineTo(x + cellWidth, y + cellHeight)
+              ctx.stroke()
+            }
+            
+            const cellIndex = row * element.cols + col
+            if (element.cells && element.cells[cellIndex] && element.cells[cellIndex].text) {
+              const text = element.cells[cellIndex].text
+              const maxWidth = cellWidth - 8 * scale
+              const lineHeight = fontSize * 1.2
+              const maxLines = Math.floor(cellHeight / lineHeight)
+              
+              const lines = []
+              let currentLine = ''
+              const words = text.split('')
+              
+              for (let i = 0; i < words.length; i++) {
+                const testLine = currentLine + words[i]
+                const testWidth = ctx.measureText(testLine).width
+                
+                if (testWidth > maxWidth && currentLine) {
+                  lines.push(currentLine)
+                  currentLine = words[i]
+                  if (lines.length >= maxLines) break
+                } else {
+                  currentLine = testLine
+                }
+              }
+              if (currentLine && lines.length < maxLines) {
+                lines.push(currentLine)
+              }
+              
+              const totalTextHeight = lines.length * lineHeight
+              const startY = y + cellHeight / 2 - totalTextHeight / 2 + lineHeight / 2
+              
+              for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], x + cellWidth / 2, startY + i * lineHeight)
+              }
+            }
+          }
+        }
+        ctx.restore()
       }
     }
 
@@ -2085,6 +2877,61 @@ const restoreImagesAfterExport = () => {
     if (element.type === 'image' && element.exportSrc) {
       element.src = element.exportSrc
       delete element.exportSrc
+    }
+  }
+}
+
+const parseSvgPath = (ctx, pathData, cx, cy, scale) => {
+  const commands = pathData.match(/[MLCQAZ][^MLCQAZ]*/g) || []
+  let x = cx, y = cy
+  
+  for (const cmd of commands) {
+    const type = cmd[0]
+    const values = cmd.slice(1).trim().split(/[, ]+/).map(v => parseFloat(v))
+    
+    let i = 0
+    while (i < values.length) {
+      if (type === 'M' || type === 'm') {
+        const px = type === 'M' ? cx + (values[i] - 12) * scale : x + values[i] * scale
+        const py = type === 'M' ? cy + (values[i + 1] - 12) * scale : y + values[i + 1] * scale
+        ctx.moveTo(px, py)
+        x = px
+        y = py
+        i += 2
+      } else if (type === 'L' || type === 'l') {
+        const px = type === 'L' ? cx + (values[i] - 12) * scale : x + values[i] * scale
+        const py = type === 'L' ? cy + (values[i + 1] - 12) * scale : y + values[i + 1] * scale
+        ctx.lineTo(px, py)
+        x = px
+        y = py
+        i += 2
+      } else if (type === 'C' || type === 'c') {
+        const cp1x = type === 'C' ? cx + (values[i] - 12) * scale : x + values[i] * scale
+        const cp1y = type === 'C' ? cx + (values[i + 1] - 12) * scale : y + values[i + 1] * scale
+        const cp2x = type === 'C' ? cx + (values[i + 2] - 12) * scale : x + values[i + 2] * scale
+        const cp2y = type === 'C' ? cx + (values[i + 3] - 12) * scale : y + values[i + 3] * scale
+        const px = type === 'C' ? cx + (values[i + 4] - 12) * scale : x + values[i + 4] * scale
+        const py = type === 'C' ? cx + (values[i + 5] - 12) * scale : y + values[i + 5] * scale
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, px, py)
+        x = px
+        y = py
+        i += 6
+      } else if (type === 'A' || type === 'a') {
+        const rx = values[i] * scale
+        const ry = values[i + 1] * scale
+        const rotation = values[i + 2]
+        const largeArc = values[i + 3]
+        const sweep = values[i + 4]
+        const px = type === 'A' ? cx + (values[i + 5] - 12) * scale : x + values[i + 5] * scale
+        const py = type === 'A' ? cy + (values[i + 6] - 12) * scale : y + values[i + 6] * scale
+        ctx.arc(x, y, rx, 0, Math.PI * 2)
+        x = px
+        y = py
+        i += 7
+      } else if (type === 'Z' || type === 'z') {
+        ctx.closePath()
+        i += 0
+      }
     }
   }
 }
