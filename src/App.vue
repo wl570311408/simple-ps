@@ -1860,8 +1860,6 @@ const exportImage = async () => {
     const hideElements = document.querySelectorAll('.element-selected, .resize-handle, .crop-overlay')
     hideElements.forEach(el => el.style.display = 'none')
 
-    await processImagesForExport()
-
     const scale = 2
     const canvas = document.createElement('canvas')
     canvas.width = canvasWidth.value * scale
@@ -1880,10 +1878,10 @@ const exportImage = async () => {
           img.onerror = reject
           img.src = element.src
         })
-        
+
         const displayWidth = element.width * (element.scale / 100) * scale
         const displayHeight = element.height * (element.scale / 100) * scale
-        
+
         const cropTop = (element.cropTop || 0) / 100
         const cropBottom = (element.cropBottom || 0) / 100
         const cropLeft = (element.cropLeft || 0) / 100
@@ -2035,52 +2033,6 @@ const exportImage = async () => {
   } catch (error) {
     console.error('导出失败:', error)
     alert('导出失败，请重试')
-  }
-}
-
-const processImagesForExport = async () => {
-  for (const element of elements.value) {
-    if (element.type === 'image' && (element.cropTop > 0 || element.cropBottom > 0 || element.cropLeft > 0 || element.cropRight > 0 || element.borderRadius > 0)) {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      await new Promise((resolve, reject) => {
-        img.onload = resolve
-        img.onerror = reject
-        img.src = element.src
-      })
-
-      const tempCanvas = document.createElement('canvas')
-      const ctx = tempCanvas.getContext('2d')
-      
-      const displayWidth = element.width * (element.scale / 100)
-      const displayHeight = element.height * (element.scale / 100)
-      
-      tempCanvas.width = displayWidth
-      tempCanvas.height = displayHeight
-      
-      const cropTop = (element.cropTop || 0) / 100
-      const cropBottom = (element.cropBottom || 0) / 100
-      const cropLeft = (element.cropLeft || 0) / 100
-      const cropRight = (element.cropRight || 0) / 100
-      
-      const sourceX = cropLeft * img.width
-      const sourceY = cropTop * img.height
-      const sourceWidth = (1 - cropLeft - cropRight) * img.width
-      const sourceHeight = (1 - cropTop - cropBottom) * img.height
-      
-      const borderRadius = element.borderRadius || 0
-      
-      if (borderRadius > 0) {
-        ctx.beginPath()
-        ctx.roundRect(0, 0, displayWidth, displayHeight, borderRadius)
-        ctx.clip()
-      }
-      
-      ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, displayWidth, displayHeight)
-      
-      element.exportSrc = element.src
-      element.src = tempCanvas.toDataURL('image/png')
-    }
   }
 }
 
