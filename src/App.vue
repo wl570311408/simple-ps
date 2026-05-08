@@ -1859,7 +1859,7 @@ const saveHistory = (element) => {
 }
 
 const undo = () => {
-  if (historyIndex.value <= 0) return
+  if (historyIndex.value < 0) return
   historyIndex.value--
   const snapshot = history.value[historyIndex.value]
   const element = elements.value.find(e => e.id === snapshot.id)
@@ -2322,23 +2322,15 @@ const handleKeyDown = (event) => {
 
   switch (event.key) {
     case 'ArrowUp':
-      event.preventDefault()
-      selectedElement.value.y -= step
-      updated = true
-      break
     case 'ArrowDown':
-      event.preventDefault()
-      selectedElement.value.y += step
-      updated = true
-      break
     case 'ArrowLeft':
-      event.preventDefault()
-      selectedElement.value.x -= step
-      updated = true
-      break
     case 'ArrowRight':
       event.preventDefault()
-      selectedElement.value.x += step
+      saveHistory(selectedElement.value)
+      if (event.key === 'ArrowUp') selectedElement.value.y -= step
+      if (event.key === 'ArrowDown') selectedElement.value.y += step
+      if (event.key === 'ArrowLeft') selectedElement.value.x -= step
+      if (event.key === 'ArrowRight') selectedElement.value.x += step
       updated = true
       break
     case 'Delete':
@@ -3058,6 +3050,8 @@ let resizeRafId = null
 const startDrag = (event, element) => {
   if (element.locked) return
   event.preventDefault()
+
+  saveHistory(element)
 
   dragData.value = {
     element,
