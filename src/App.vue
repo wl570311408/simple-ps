@@ -396,6 +396,57 @@
                 <option value="double">双线</option>
               </select>
             </div>
+            <div class="border-t border-gray-200 pt-4">
+              <label class="block text-sm text-gray-600 mb-1">边框文字</label>
+              <textarea
+                v-model="borderEditorData.text"
+                @input="updateBorderElement"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+                placeholder="输入边框内的文字"
+                rows="3"
+              ></textarea>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">字体</label>
+              <select
+                v-model="borderEditorData.fontFamily"
+                @change="updateBorderElement"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              >
+                <optgroup label="中文字体">
+                  <option v-for="font in availableFonts.chinese" :key="font.name" :value="font.name">
+                    {{ font.label }}
+                  </option>
+                </optgroup>
+                <optgroup label="英文字体">
+                  <option v-for="font in availableFonts.english" :key="font.name" :value="font.name">
+                    {{ font.label }}
+                  </option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">字号: {{ borderEditorData.fontSize }}px</label>
+                <input
+                  type="number"
+                  v-model.number="borderEditorData.fontSize"
+                  min="8"
+                  max="48"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  @input="updateBorderElement"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
+                <input
+                  type="color"
+                  v-model="borderEditorData.fontColor"
+                  @input="updateBorderElement"
+                  class="w-full h-10 rounded-lg cursor-pointer border border-gray-300"
+                />
+              </div>
+            </div>
           </div>
           <div v-else-if="selectedElement.type === 'table'" class="space-y-4">
             <div class="grid grid-cols-2 gap-2">
@@ -449,6 +500,25 @@
                 class="w-full"
                 @input="updateTableElement"
               />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">字体</label>
+              <select
+                v-model="tableEditorData.fontFamily"
+                @change="updateTableElement"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              >
+                <optgroup label="中文字体">
+                  <option v-for="font in availableFonts.chinese" :key="font.name" :value="font.name">
+                    {{ font.label }}
+                  </option>
+                </optgroup>
+                <optgroup label="英文字体">
+                  <option v-for="font in availableFonts.english" :key="font.name" :value="font.name">
+                    {{ font.label }}
+                  </option>
+                </optgroup>
+              </select>
             </div>
             <div class="grid grid-cols-2 gap-3 mt-3">
               <div>
@@ -532,12 +602,16 @@
                 @change="updateTextElement"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                <option value="Microsoft YaHei">微软雅黑</option>
-                <option value="SimHei">黑体</option>
-                <option value="SimSun">宋体</option>
-                <option value="KaiTi">楷体</option>
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
+                <optgroup label="中文字体">
+                  <option v-for="font in availableFonts.chinese" :key="font.name" :value="font.name">
+                    {{ font.label }}
+                  </option>
+                </optgroup>
+                <optgroup label="英文字体">
+                  <option v-for="font in availableFonts.english" :key="font.name" :value="font.name">
+                    {{ font.label }}
+                  </option>
+                </optgroup>
               </select>
             </div>
             <div>
@@ -1036,13 +1110,16 @@
               </div>
               <div 
                 v-else-if="element.type === 'border'" 
-                class="w-full h-full flex items-center justify-center"
+                class="w-full h-full flex items-center justify-center overflow-hidden"
                 :style="{ 
                   border: `${element.borderWidth || 2}px ${element.borderStyle} ${element.borderColor}`,
                   borderRadius: element.borderRadius + 'px'
                 }"
               >
-                <span class="text-gray-400 text-sm">添加内容</span>
+                <div v-if="element.text" class="text-center p-2" :style="{ fontFamily: element.fontFamily || 'Microsoft YaHei', fontSize: `${element.fontSize || 14}px`, color: element.fontColor || '#333333' }">
+                  {{ element.text }}
+                </div>
+                <span v-else class="text-gray-400 text-sm">添加内容</span>
               </div>
               <div 
                 v-else-if="element.type === 'table'" 
@@ -1063,6 +1140,7 @@
                       class="absolute inset-0 flex items-center justify-center overflow-hidden"
                       :style="{ 
                         padding: '2px',
+                        fontFamily: element.fontFamily || 'Microsoft YaHei',
                         fontSize: `${element.fontSize || 14}px`,
                         color: element.fontColor || '#333333',
                         wordBreak: 'break-all'
@@ -1151,6 +1229,120 @@ import html2canvas from 'html2canvas'
 const fileInputRef = ref(null)
 const canvasRef = ref(null)
 const bgImageInputRef = ref(null)
+
+const platformFonts = {
+  windows: [
+    { name: 'Microsoft YaHei', label: '微软雅黑' },
+    { name: 'SimHei', label: '黑体' },
+    { name: 'SimSun', label: '宋体' },
+    { name: 'KaiTi', label: '楷体' },
+    { name: 'FangSong', label: '仿宋' },
+    { name: 'YouYuan', label: '幼圆' },
+    { name: 'SimKai', label: '华文楷体' },
+    { name: 'STSong', label: '华文宋体' },
+    { name: 'STXingkai', label: '华文行楷' },
+    { name: 'STXinwei', label: '华文新魏' },
+    { name: 'STLiti', label: '华文隶书' }
+  ],
+  mac: [
+    { name: 'PingFang SC', label: '苹方' },
+    { name: 'Hiragino Sans GB', label: '冬青黑体' },
+    { name: 'STHeiti', label: '黑体' },
+    { name: 'STSong', label: '华文宋体' },
+    { name: 'STKaiti', label: '华文楷体' },
+    { name: 'STXingkai', label: '华文行楷' },
+    { name: 'STXinwei', label: '华文新魏' },
+    { name: 'STLiti', label: '华文隶书' },
+    { name: 'KaiTi', label: '楷体' },
+    { name: 'SimSun', label: '宋体' }
+  ],
+  linux: [
+    { name: 'Noto Sans CJK SC', label: 'Noto Sans CJK SC' },
+    { name: 'Noto Serif CJK SC', label: 'Noto Serif CJK SC' },
+    { name: 'WenQuanYi Micro Hei', label: '文泉驿微米黑' },
+    { name: 'WenQuanYi Zen Hei', label: '文泉驿正黑' },
+    { name: 'STSong', label: '华文宋体' },
+    { name: 'SimSun', label: '宋体' }
+  ],
+  common: [
+    { name: 'Arial', label: 'Arial' },
+    { name: 'Times New Roman', label: 'Times New Roman' },
+    { name: 'Verdana', label: 'Verdana' },
+    { name: 'Tahoma', label: 'Tahoma' },
+    { name: 'Georgia', label: 'Georgia' },
+    { name: 'Courier New', label: 'Courier New' },
+    { name: 'Comic Sans MS', label: 'Comic Sans MS' },
+    { name: 'Impact', label: 'Impact' },
+    { name: 'Palatino Linotype', label: 'Palatino Linotype' },
+    { name: 'Garamond', label: 'Garamond' },
+    { name: 'Book Antiqua', label: 'Book Antiqua' },
+    { name: 'Trebuchet MS', label: 'Trebuchet MS' },
+    { name: 'Century Gothic', label: 'Century Gothic' }
+  ]
+}
+
+const detectPlatform = () => {
+  const userAgent = navigator.userAgent
+  if (userAgent.includes('Mac')) return 'mac'
+  if (userAgent.includes('Windows')) return 'windows'
+  return 'linux'
+}
+
+const detectFont = (fontName) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  const testFonts = ['monospace', 'sans-serif', 'serif']
+  
+  for (const testFont of testFonts) {
+    ctx.font = `72px ${testFont}`
+    const baselineSize = ctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZ').width
+    
+    ctx.font = `72px "${fontName}", ${testFont}`
+    const targetSize = ctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZ').width
+    
+    if (Math.abs(baselineSize - targetSize) > 1) {
+      return true
+    }
+  }
+  return false
+}
+
+const availableFonts = ref({
+  chinese: [],
+  english: []
+})
+
+const loadAvailableFonts = () => {
+  const platform = detectPlatform()
+  const platformSpecificFonts = platformFonts[platform]
+  
+  const chineseFonts = []
+  for (const font of platformSpecificFonts) {
+    if (detectFont(font.name)) {
+      chineseFonts.push(font)
+    }
+  }
+  
+  const englishFonts = []
+  for (const font of platformFonts.common) {
+    if (detectFont(font.name)) {
+      englishFonts.push(font)
+    }
+  }
+  
+  const finalChineseFonts = chineseFonts.length > 0 ? chineseFonts : platformSpecificFonts
+  const finalEnglishFonts = englishFonts.length > 0 ? englishFonts : platformFonts.common
+  
+  availableFonts.value = {
+    chinese: finalChineseFonts,
+    english: finalEnglishFonts
+  }
+  
+  const defaultFont = finalChineseFonts[0]?.name || 'Microsoft YaHei'
+  textEditorData.value.fontFamily = defaultFont
+  borderEditorData.value.fontFamily = defaultFont
+  tableEditorData.value.fontFamily = defaultFont
+}
 const canvasWidth = ref(800)
 const canvasHeight = ref(600)
 const canvasBgColor = ref('#ffffff')
@@ -1248,6 +1440,7 @@ const tableEditorData = ref({
   cols: 3,
   borderColor: '#333333',
   borderWidth: 1,
+  fontFamily: 'Microsoft YaHei',
   fontSize: 14,
   fontColor: '#333333',
   cells: []
@@ -1257,7 +1450,11 @@ const borderEditorData = ref({
   borderColor: '#333333',
   borderWidth: 2,
   borderRadius: 4,
-  borderStyle: 'solid'
+  borderStyle: 'solid',
+  text: '',
+  fontFamily: 'Microsoft YaHei',
+  fontSize: 14,
+  fontColor: '#333333'
 })
 
 const textEditorData = ref({
@@ -1758,6 +1955,7 @@ const handleKeyDown = (event) => {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
+  loadAvailableFonts()
 })
 
 onUnmounted(() => {
@@ -2006,6 +2204,10 @@ const updateBorderElement = () => {
     selectedElement.value.borderWidth = borderEditorData.value.borderWidth
     selectedElement.value.borderRadius = borderEditorData.value.borderRadius
     selectedElement.value.borderStyle = borderEditorData.value.borderStyle
+    selectedElement.value.text = borderEditorData.value.text
+    selectedElement.value.fontFamily = borderEditorData.value.fontFamily
+    selectedElement.value.fontSize = borderEditorData.value.fontSize
+    selectedElement.value.fontColor = borderEditorData.value.fontColor
   }
 }
 
@@ -2014,6 +2216,7 @@ const updateTableElement = () => {
     saveHistory(selectedElement.value)
     selectedElement.value.borderColor = tableEditorData.value.borderColor
     selectedElement.value.borderWidth = tableEditorData.value.borderWidth
+    selectedElement.value.fontFamily = tableEditorData.value.fontFamily
     selectedElement.value.fontSize = tableEditorData.value.fontSize
     selectedElement.value.fontColor = tableEditorData.value.fontColor
   }
@@ -2155,6 +2358,7 @@ const handleFileChange = (event) => {
 
 const addText = () => {
   const fontSize = defaultSettings.value.textFontSize
+  const defaultFontFamily = availableFonts.value.chinese[0]?.name || 'Microsoft YaHei'
   const newElement = {
     id: ++idCounter,
     type: 'text',
@@ -2164,7 +2368,7 @@ const addText = () => {
     width: 200,
     height: fontSize + 16,
     scale: 100,
-    fontFamily: 'Microsoft YaHei',
+    fontFamily: defaultFontFamily,
     fontSize: fontSize,
     color: defaultSettings.value.textColor,
     textAlign: 'center',
@@ -2201,7 +2405,11 @@ const selectElement = (element) => {
       borderColor: element.borderColor,
       borderWidth: element.borderWidth || 2,
       borderRadius: element.borderRadius || 4,
-      borderStyle: element.borderStyle || 'solid'
+      borderStyle: element.borderStyle || 'solid',
+      text: element.text || '',
+      fontFamily: element.fontFamily || 'Microsoft YaHei',
+      fontSize: element.fontSize || 14,
+      fontColor: element.fontColor || '#333333'
     }
   } else if (element.type === 'table') {
     tableEditorData.value = {
@@ -2209,6 +2417,7 @@ const selectElement = (element) => {
       cols: element.cols,
       borderColor: element.borderColor,
       borderWidth: element.borderWidth,
+      fontFamily: element.fontFamily || 'Microsoft YaHei',
       fontSize: element.fontSize || 14,
       fontColor: element.fontColor || '#333333',
       cells: element.cells
@@ -2594,7 +2803,10 @@ const exportImage = async () => {
         ctx.restore()
       } else if (element.type === 'text') {
         ctx.save()
-        ctx.font = `${element.bold ? 'bold' : ''} ${element.italic ? 'italic' : ''} ${element.fontSize * scale}px ${element.fontFamily}`
+        const fontStyle = []
+        if (element.bold) fontStyle.push('bold')
+        if (element.italic) fontStyle.push('italic')
+        ctx.font = `${fontStyle.join(' ')} ${element.fontSize * scale}px "${element.fontFamily || 'Microsoft YaHei'}", 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'STHeiti', 'SimHei', 'STSong', 'SimSun', 'KaiTi', 'STKaiti', sans-serif`.trim()
         ctx.fillStyle = element.color
         ctx.textAlign = element.textAlign
         ctx.textBaseline = 'middle'
@@ -2896,6 +3108,26 @@ const exportImage = async () => {
         ctx.beginPath()
         ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, (element.borderRadius || 0) * scale)
         ctx.stroke()
+        
+        if (element.text) {
+          const fontSize = (element.fontSize || 14) * scale
+          const lineHeight = fontSize * 1.2
+          ctx.font = `${fontSize}px ${element.fontFamily || 'Microsoft YaHei'}`
+          ctx.fillStyle = element.fontColor || '#333333'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          
+          const lines = element.text.split('\n')
+          const maxLines = Math.floor(displayHeight / lineHeight)
+          const visibleLines = lines.slice(0, maxLines)
+          const totalHeight = visibleLines.length * lineHeight
+          const startY = element.y * scale + displayHeight / 2 - totalHeight / 2 + lineHeight / 2
+          
+          for (let i = 0; i < visibleLines.length; i++) {
+            ctx.fillText(visibleLines[i], element.x * scale + displayWidth / 2, startY + i * lineHeight)
+          }
+        }
+        
         ctx.restore()
       } else if (element.type === 'table') {
         ctx.save()
@@ -2914,7 +3146,7 @@ const exportImage = async () => {
         const cellWidth = displayWidth / element.cols
         const cellHeight = displayHeight / element.rows
         
-        ctx.font = `${fontSize}px sans-serif`
+        ctx.font = `${fontSize}px ${element.fontFamily || 'Microsoft YaHei'}`
         
         const borderRadius = (element.borderRadius || 4) * scale
         ctx.beginPath()
