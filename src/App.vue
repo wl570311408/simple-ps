@@ -278,17 +278,17 @@
               <div class="flex flex-col justify-between h-full">
                 <button
                   @click.stop="moveUp(element)"
-                  class="p-0 hover:bg-gray-200 rounded"
+                  class="p-0.5 hover:bg-gray-200 rounded"
                   :title="t('layer.moveUp')"
                 >
-                  <ChevronUp class="w-2.5 h-2.5" />
+                  <ChevronUp class="w-3 h-3 text-gray-600" />
                 </button>
                 <button
                   @click.stop="moveDown(element)"
-                  class="p-0 hover:bg-gray-200 rounded"
+                  class="p-0.5 hover:bg-gray-200 rounded"
                   :title="t('layer.moveDown')"
                 >
-                  <ChevronDown class="w-2.5 h-2.5" />
+                  <ChevronDown class="w-3 h-3 text-gray-600" />
                 </button>
               </div>
               <button
@@ -1642,14 +1642,12 @@ const selectedElement = ref(null)
 const showShapeMenu = ref(false)
 const showIconMenu = ref(false)
 const showStickerMenu = ref(false)
-const showBorderMenu = ref(false)
 const showOtherMenu = ref(false)
 
 const toggleMenu = (menuName) => {
   showShapeMenu.value = menuName === 'shape' ? !showShapeMenu.value : false
   showIconMenu.value = menuName === 'icon' ? !showIconMenu.value : false
   showStickerMenu.value = menuName === 'sticker' ? !showStickerMenu.value : false
-  showBorderMenu.value = menuName === 'border' ? !showBorderMenu.value : false
   showOtherMenu.value = menuName === 'other' ? !showOtherMenu.value : false
 }
 
@@ -2312,10 +2310,11 @@ if (typeof window !== 'undefined') {
 }
 
 const handleKeyDown = (event) => {
-  if (!selectedElement.value) return
-  
   const target = event.target
   const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
+  
+  if (!selectedElement.value) return
+  
   if (isInput) return
 
   const step = 1
@@ -2342,6 +2341,11 @@ const handleKeyDown = (event) => {
       selectedElement.value.x += step
       updated = true
       break
+    case 'Delete':
+    case 'Backspace':
+      event.preventDefault()
+      deleteElement(selectedElement.value)
+      break
   }
 
   if (updated) {
@@ -2362,11 +2366,22 @@ const handleKeyDown = (event) => {
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
   loadAvailableFonts()
+  
+  window.handleCtrlD = function() {
+    if (selectedElement.value) {
+      const target = document.activeElement
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
+      if (!isInput) {
+        duplicateElement(selectedElement.value)
+      }
+    }
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown)
   window.removeEventListener('resize', updateCanvasScale)
+  window.handleCtrlD = null
 })
 
 const addShape = (shapeType) => {

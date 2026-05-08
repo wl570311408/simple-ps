@@ -8,6 +8,34 @@
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      (function() {
+        var isCtrlD = false
+        
+        document.addEventListener('keydown', function(e) {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+            e.preventDefault()
+            e.stopPropagation()
+            isCtrlD = true
+            setTimeout(function() {
+              if (isCtrlD && window.handleCtrlD) {
+                window.handleCtrlD()
+              }
+              isCtrlD = false
+            }, 0)
+            return false
+          }
+        }, true)
+        
+        document.addEventListener('keyup', function(e) {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+            e.preventDefault()
+            e.stopPropagation()
+            return false
+          }
+        }, true)
+      })()
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
