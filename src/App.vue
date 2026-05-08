@@ -1268,7 +1268,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, createVNode, render } from 'vue'
 import {
   LayoutGrid, ImagePlus, Type, Download, Layers,
   ChevronUp, ChevronDown, Trash2, Palette, X,
@@ -3094,141 +3094,12 @@ const exportImage = async () => {
         
         ctx.restore()
       } else if (element.type === 'icon') {
-        ctx.save()
-        const displayWidth = element.width * (element.scale / 100) * scale
-        const displayHeight = element.height * (element.scale / 100) * scale
-        ctx.strokeStyle = element.color
-        ctx.lineWidth = 2 * scale
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-        
-        const cx = element.x * scale + displayWidth / 2
-        const cy = element.y * scale + displayHeight / 2
-        const size = Math.min(displayWidth, displayHeight) * 0.7
-        
-        const drawIcon = (name) => {
-          switch(name) {
-            case 'star':
-              ctx.beginPath()
-              for(let i = 0; i < 5; i++) {
-                const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2
-                const x = cx + Math.cos(angle) * size / 2
-                const y = cy + Math.sin(angle) * size / 2
-                if(i === 0) ctx.moveTo(x, y)
-                else ctx.lineTo(x, y)
-              }
-              ctx.closePath()
-              ctx.stroke()
-              break
-            case 'heart':
-              ctx.beginPath()
-              ctx.moveTo(cx, cy + size / 4)
-              ctx.bezierCurveTo(cx - size / 2, cy - size / 4, cx - size / 2, cy + size / 6, cx, cy + size / 2)
-              ctx.bezierCurveTo(cx + size / 2, cy + size / 6, cx + size / 2, cy - size / 4, cx, cy + size / 4)
-              ctx.closePath()
-              ctx.stroke()
-              break
-            case 'circle':
-              ctx.beginPath()
-              ctx.arc(cx, cy, size / 2, 0, Math.PI * 2)
-              ctx.stroke()
-              break
-            case 'triangle':
-              ctx.beginPath()
-              ctx.moveTo(cx, cy - size / 2)
-              ctx.lineTo(cx - size / 2, cy + size / 2)
-              ctx.lineTo(cx + size / 2, cy + size / 2)
-              ctx.closePath()
-              ctx.stroke()
-              break
-            case 'square':
-              ctx.beginPath()
-              ctx.rect(cx - size / 2, cy - size / 2, size, size)
-              ctx.stroke()
-              break
-            case 'hexagon':
-              ctx.beginPath()
-              for(let i = 0; i < 6; i++) {
-                const angle = (i * Math.PI) / 3 - Math.PI / 2
-                const x = cx + Math.cos(angle) * size / 2
-                const y = cy + Math.sin(angle) * size / 2
-                if(i === 0) ctx.moveTo(x, y)
-                else ctx.lineTo(x, y)
-              }
-              ctx.closePath()
-              ctx.stroke()
-              break
-            case 'arrow':
-              ctx.beginPath()
-              ctx.moveTo(cx - size / 2, cy)
-              ctx.lineTo(cx + size / 4, cy)
-              ctx.moveTo(cx + size / 4, cy - size / 3)
-              ctx.lineTo(cx + size / 2, cy)
-              ctx.lineTo(cx + size / 4, cy + size / 3)
-              ctx.stroke()
-              break
-            case 'download':
-              ctx.beginPath()
-              ctx.moveTo(cx - size / 2, cy + size / 3)
-              ctx.lineTo(cx, cy - size / 3)
-              ctx.lineTo(cx + size / 2, cy + size / 3)
-              ctx.moveTo(cx - size / 3, cy + size / 3)
-              ctx.lineTo(cx - size / 3, cy + size / 2)
-              ctx.lineTo(cx + size / 3, cy + size / 2)
-              ctx.lineTo(cx + size / 3, cy + size / 3)
-              ctx.stroke()
-              break
-            case 'upload':
-              ctx.beginPath()
-              ctx.moveTo(cx - size / 2, cy - size / 3)
-              ctx.lineTo(cx, cy + size / 3)
-              ctx.lineTo(cx + size / 2, cy - size / 3)
-              ctx.moveTo(cx - size / 3, cy - size / 3)
-              ctx.lineTo(cx - size / 3, cy - size / 2)
-              ctx.lineTo(cx + size / 3, cy - size / 2)
-              ctx.lineTo(cx + size / 3, cy - size / 3)
-              ctx.stroke()
-              break
-            case 'edit':
-              ctx.beginPath()
-              ctx.rect(cx - size / 2, cy - size / 4, size, size * 0.75)
-              ctx.stroke()
-              ctx.beginPath()
-              ctx.moveTo(cx + size / 4, cy - size / 2)
-              ctx.lineTo(cx + size / 2, cy - size / 4)
-              ctx.lineTo(cx - size / 4, cy + size / 2)
-              ctx.lineTo(cx - size / 2, cy + size / 4)
-              ctx.closePath()
-              ctx.stroke()
-              break
-            case 'copy':
-              ctx.beginPath()
-              ctx.rect(cx - size / 2, cy - size / 2, size, size * 0.8)
-              ctx.stroke()
-              ctx.beginPath()
-              ctx.rect(cx - size / 4, cy + size / 4, size / 2, size * 0.4)
-              ctx.stroke()
-              break
-            case 'settings':
-              ctx.beginPath()
-              ctx.arc(cx, cy - size / 3, size / 6, 0, Math.PI * 2)
-              ctx.stroke()
-              ctx.beginPath()
-              ctx.arc(cx, cy, size / 6, 0, Math.PI * 2)
-              ctx.stroke()
-              ctx.beginPath()
-              ctx.arc(cx - size / 3 * 0.866, cy + size / 6, size / 6, 0, Math.PI * 2)
-              ctx.stroke()
-              break
-            default:
-              ctx.beginPath()
-              ctx.arc(cx, cy, size / 2, 0, Math.PI * 2)
-              ctx.stroke()
-          }
+        const iconCanvas = await exportIconToCanvas(element, scale)
+        if (iconCanvas) {
+          const displayWidth = element.width * (element.scale / 100) * scale
+          const displayHeight = element.height * (element.scale / 100) * scale
+          ctx.drawImage(iconCanvas, element.x * scale, element.y * scale, displayWidth, displayHeight)
         }
-        
-        drawIcon(element.iconName)
-        ctx.restore()
       } else if (element.type === 'sticker') {
         ctx.save()
         const displayWidth = element.width * (element.scale / 100) * scale
@@ -3388,6 +3259,37 @@ const restoreImagesAfterExport = () => {
       delete element.exportSrc
     }
   }
+}
+
+const exportIconToCanvas = async (element, scale) => {
+  const iconComponent = iconList.find(i => i.name === element.iconName)?.component
+  if (!iconComponent) return null
+  
+  const tempDiv = document.createElement('div')
+  tempDiv.style.position = 'absolute'
+  tempDiv.style.top = '-10000px'
+  tempDiv.style.width = `${element.width}px`
+  tempDiv.style.height = `${element.height}px`
+  tempDiv.style.display = 'flex'
+  tempDiv.style.alignItems = 'center'
+  tempDiv.style.justifyContent = 'center'
+  document.body.appendChild(tempDiv)
+  
+  const vueIcon = createVNode(iconComponent, {
+    class: 'w-full h-full',
+    style: { color: element.color }
+  })
+  render(vueIcon, tempDiv)
+  
+  const iconCanvas = await html2canvas(tempDiv, {
+    backgroundColor: null,
+    scale: scale
+  })
+  
+  document.body.removeChild(tempDiv)
+  render(null, tempDiv)
+  
+  return iconCanvas
 }
 
 const parseSvgPath = (ctx, pathData, cx, cy, scale) => {
