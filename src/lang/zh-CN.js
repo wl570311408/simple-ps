@@ -289,7 +289,11 @@ export default {
     table: '表格',
     qrcode: '二维码',
     moveUp: '上移一层',
-    moveDown: '下移一层'
+    moveDown: '下移一层',
+    show: '显示',
+    hide: '隐藏',
+    lock: '锁定',
+    unlock: '解锁'
   },
   font: {
     chinese: '中文字体',

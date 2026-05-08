@@ -289,7 +289,11 @@ export default {
     table: 'Table',
     qrcode: 'QR Code',
     moveUp: 'Move Up',
-    moveDown: 'Move Down'
+    moveDown: 'Move Down',
+    show: 'Show',
+    hide: 'Hide',
+    lock: 'Lock',
+    unlock: 'Unlock'
   },
   font: {
     chinese: 'Chinese Fonts',

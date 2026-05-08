@@ -222,28 +222,47 @@
             <div
               v-for="(element, index) in sortedElements"
               :key="element.id"
-              @click="selectElement(element)"
               :class="[
-                'flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors',
+                'flex items-center gap-1.5 p-1.5 rounded-lg cursor-pointer transition-colors',
                 selectedElement?.id === element.id
                   ? 'bg-blue-50 border border-blue-300'
                   : 'bg-gray-50 hover:bg-gray-100'
               ]"
             >
-              <ImageIcon v-if="element.type === 'image'" :size="20" class="text-gray-600" />
-              <Type v-else-if="element.type === 'text'" class="w-5 h-5 text-gray-600" />
-              <Triangle v-else-if="element.type === 'shape'" class="w-5 h-5 text-gray-600" :style="{ color: element.color }" />
-              <Star v-else-if="element.type === 'icon'" class="w-5 h-5 text-gray-600" />
-              <Heart v-else-if="element.type === 'sticker'" class="w-5 h-5 text-pink-500" />
-              <Square v-else-if="element.type === 'border'" class="w-5 h-5 text-teal-500" />
-              <svg v-else-if="element.type === 'table'" class="w-5 h-5 text-cyan-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class="flex flex-col justify-between h-full">
+                <button
+                  @click.stop="toggleVisibility(element)"
+                  class="p-0.5 hover:bg-gray-200 rounded"
+                  :title="element.visible ? t('layer.hide') : t('layer.show')"
+                >
+                  <Eye v-if="element.visible !== false" class="w-3 h-3 text-gray-600" />
+                  <EyeOff v-else class="w-3 h-3 text-gray-400" />
+                </button>
+                <button
+                  v-if="element.visible !== false"
+                  @click.stop="toggleLock(element)"
+                  class="p-0.5 hover:bg-gray-200 rounded"
+                  :title="element.locked ? t('layer.unlock') : t('layer.lock')"
+                >
+                  <Unlock v-if="element.locked !== true" class="w-3 h-3 text-gray-600" />
+                  <Lock v-else class="w-3 h-3 text-gray-400" />
+                </button>
+              </div>
+              <div @click="selectElement(element)" class="flex-1 flex items-center gap-1.5">
+                <ImageIcon v-if="element.type === 'image'" :size="16" class="text-gray-600" />
+              <Type v-else-if="element.type === 'text'" class="w-4 h-4 text-gray-600" />
+              <Triangle v-else-if="element.type === 'shape'" class="w-4 h-4 text-gray-600" :style="{ color: element.color }" />
+              <Star v-else-if="element.type === 'icon'" class="w-4 h-4 text-gray-600" />
+              <Heart v-else-if="element.type === 'sticker'" class="w-4 h-4 text-pink-500" />
+              <Square v-else-if="element.type === 'border'" class="w-4 h-4 text-teal-500" />
+              <svg v-else-if="element.type === 'table'" class="w-4 h-4 text-cyan-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <line x1="3" y1="9" x2="21" y2="9"/>
                 <line x1="3" y1="15" x2="21" y2="15"/>
                 <line x1="9" y1="3" x2="9" y2="21"/>
                 <line x1="15" y1="3" x2="15" y2="21"/>
               </svg>
-              <svg v-else-if="element.type === 'qrcode'" class="w-5 h-5 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg v-else-if="element.type === 'qrcode'" class="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <rect x="6" y="6" width="4" height="4"/>
                 <rect x="14" y="6" width="4" height="4"/>
@@ -252,31 +271,34 @@
                 <rect x="6" y="12" width="2" height="2"/>
                 <rect x="12" y="6" width="2" height="2"/>
               </svg>
-              <Circle v-else class="w-5 h-5 text-gray-600" />
-              <span class="text-sm flex-1 truncate" :style="element.type === 'shape' ? { color: element.color } : {}">
+              <Circle v-else class="w-4 h-4 text-gray-600" />
+              <span class="text-xs flex-1 truncate" :style="element.type === 'shape' ? { color: element.color } : {}">
                 {{ getLayerName(element) }}
               </span>
-              <button
-                @click.stop="moveUp(element)"
-                class="p-1 hover:bg-gray-200 rounded"
-                :title="t('layer.moveUp')"
-              >
-                <ChevronUp class="w-4 h-4" />
-              </button>
-              <button
-                @click.stop="moveDown(element)"
-                class="p-1 hover:bg-gray-200 rounded"
-                :title="t('layer.moveDown')"
-              >
-                <ChevronDown class="w-4 h-4" />
-              </button>
+              <div class="flex flex-col justify-between h-full">
+                <button
+                  @click.stop="moveUp(element)"
+                  class="p-0 hover:bg-gray-200 rounded"
+                  :title="t('layer.moveUp')"
+                >
+                  <ChevronUp class="w-2.5 h-2.5" />
+                </button>
+                <button
+                  @click.stop="moveDown(element)"
+                  class="p-0 hover:bg-gray-200 rounded"
+                  :title="t('layer.moveDown')"
+                >
+                  <ChevronDown class="w-2.5 h-2.5" />
+                </button>
+              </div>
               <button
                 @click.stop="deleteElement(element)"
-                class="p-1 hover:bg-red-100 text-red-500 rounded"
+                class="p-0.5 hover:bg-red-100 text-red-500 rounded"
                 :title="t('common.delete')"
               >
-                <Trash2 class="w-4 h-4" />
+                <Trash2 class="w-3 h-3" />
               </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1104,7 +1126,9 @@
               <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.preset') }}</label>
               <select
                 v-model="selectedPreset"
+                :disabled="canvasBgType === 'image' && canvasBgImage"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                :class="{ 'opacity-50 cursor-not-allowed': canvasBgType === 'image' && canvasBgImage }"
                 @change="applyPreset"
               >
                 <option value="">{{ t('canvas.custom') }}</option>
@@ -1122,7 +1146,9 @@
                 <input
                   type="number"
                   v-model.number="canvasWidth"
+                  :disabled="canvasBgType === 'image' && canvasBgImage"
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  :class="{ 'opacity-50 cursor-not-allowed bg-gray-100': canvasBgType === 'image' && canvasBgImage }"
                 />
               </div>
               <div>
@@ -1130,7 +1156,9 @@
                 <input
                   type="number"
                   v-model.number="canvasHeight"
+                  :disabled="canvasBgType === 'image' && canvasBgImage"
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  :class="{ 'opacity-50 cursor-not-allowed bg-gray-100': canvasBgType === 'image' && canvasBgImage }"
                 />
               </div>
             </div>
@@ -1147,7 +1175,7 @@
                   {{ t('canvas.color') }}
                 </button>
                 <button
-                  @click="canvasBgType = 'image'"
+                  @click="switchToImageBackground"
                   :class="[
                     'flex-1 py-2 px-3 rounded-lg text-sm transition-colors',
                     canvasBgType === 'image' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1267,15 +1295,17 @@
             <div
               ref="canvasRef"
               :style="getCanvasStyle()"
-              class="relative shadow-lg overflow-hidden"
+              class="relative shadow-lg overflow-hidden border border-gray-300"
               @click="handleCanvasClick"
             >
             <div
               v-for="element in sortedElements"
+              v-show="element.visible !== false"
               :key="element.id"
               :class="[
                 'absolute cursor-move select-none',
-                selectedElement?.id === element.id ? 'element-selected' : ''
+                selectedElement?.id === element.id ? 'element-selected' : '',
+                element.locked ? 'cursor-not-allowed' : ''
               ]"
               :style="getElementStyle(element)"
               @mousedown="startDrag($event, element)"
@@ -1474,7 +1504,8 @@ import {
   XCircle, AlertCircle, Info, HelpCircle, Lightbulb, Zap,
   Gift, Award, Send, Share2, Bookmark, Tag, Users, User,
   Bell, Sun, Moon, Cloud, CloudRain, Snowflake, Wind,
-  Wifi, Battery, Volume2, VolumeX, Printer, TrendingUp
+  Wifi, Battery, Volume2, VolumeX, Printer, TrendingUp,
+  Eye, EyeOff, Lock, Unlock
 } from 'lucide-vue-next'
 import html2canvas from 'html2canvas'
 import QRCode from 'qrcode'
@@ -2180,6 +2211,27 @@ const applyPreset = () => {
     const size = presetSizes[selectedPreset.value]
     canvasWidth.value = size.width
     canvasHeight.value = size.height
+  }
+}
+
+const switchToImageBackground = () => {
+  canvasBgType.value = 'image'
+  if (canvasBgImage.value) {
+    const img = new Image()
+    img.onload = () => {
+      if (canvasBgFillMode.value === 'resize') {
+        canvasWidth.value = img.width
+        canvasHeight.value = img.height
+      } else if (canvasBgFillMode.value === 'cover') {
+        const scale = Math.max(canvasWidth.value / img.width, canvasHeight.value / img.height)
+        canvasWidth.value = Math.round(img.width * scale)
+        canvasHeight.value = Math.round(img.height * scale)
+      } else if (canvasBgFillMode.value === 'stretch') {
+        canvasWidth.value = img.width
+        canvasHeight.value = img.height
+      }
+    }
+    img.src = canvasBgImage.value
   }
 }
 
@@ -2916,6 +2968,7 @@ const addText = () => {
 }
 
 const selectElement = (element) => {
+  if (element.locked) return
   selectedElement.value = element
   if (element.type === 'image') {
     imageEditorData.value = {
@@ -2988,6 +3041,7 @@ let rafId = null
 let resizeRafId = null
 
 const startDrag = (event, element) => {
+  if (element.locked) return
   event.preventDefault()
 
   dragData.value = {
@@ -3287,6 +3341,14 @@ const deleteElement = (element) => {
   }
 }
 
+const toggleVisibility = (element) => {
+  element.visible = element.visible === false
+}
+
+const toggleLock = (element) => {
+  element.locked = element.locked !== true
+}
+
 const exportImage = async () => {
   if (!canvasRef.value) return
 
@@ -3309,8 +3371,34 @@ const exportImage = async () => {
     canvas.height = canvasHeight.value * scale
     const ctx = canvas.getContext('2d')
     
-    ctx.fillStyle = canvasBgColor.value
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    if (canvasBgType.value === 'color') {
+      ctx.fillStyle = canvasBgColor.value
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    } else if (canvasBgType.value === 'image' && canvasBgImage.value) {
+      const bgImg = new Image()
+      bgImg.crossOrigin = 'anonymous'
+      await new Promise((resolve, reject) => {
+        bgImg.onload = resolve
+        bgImg.onerror = reject
+        bgImg.src = canvasBgImage.value
+      })
+      
+      if (canvasBgFillMode.value === 'cover') {
+        const bgScale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height)
+        const x = (canvas.width - bgImg.width * bgScale) / 2
+        const y = (canvas.height - bgImg.height * bgScale) / 2
+        ctx.drawImage(bgImg, 0, 0, bgImg.width, bgImg.height, x, y, bgImg.width * bgScale, bgImg.height * bgScale)
+      } else if (canvasBgFillMode.value === 'stretch') {
+        ctx.drawImage(bgImg, 0, 0, bgImg.width, bgImg.height, 0, 0, canvas.width, canvas.height)
+      } else {
+        const x = (canvas.width - bgImg.width * scale) / 2
+        const y = (canvas.height - bgImg.height * scale) / 2
+        ctx.drawImage(bgImg, 0, 0, bgImg.width, bgImg.height, x, y, bgImg.width * scale, bgImg.height * scale)
+      }
+    } else {
+      ctx.fillStyle = canvasBgColor.value
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
     
     for (const element of sortedElements.value) {
       if (element.type === 'image') {
