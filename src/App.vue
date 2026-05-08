@@ -1,33 +1,36 @@
 <template>
   <div class="min-h-screen bg-gray-100">
-    <header class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+    <header class="bg-white shadow-sm border-b border-gray-200 w-full">
+      <div class="w-full px-3 py-2 flex items-center justify-between">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <LayoutGrid class="w-6 h-6 text-blue-600" />
-          <h1 class="text-xl font-bold text-gray-800">小学生小报排版工具</h1>
+          <h1 class="text-lg font-bold text-gray-800 lg:text-xl hidden lg:block">{{ t('app.title') }}</h1>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 ml-auto">
           <button
             @click="addImage"
-            class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            :title="t('toolbar.image')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
-            <ImagePlus class="w-5 h-5" />
-            <span>图片</span>
+            <ImagePlus class="w-4 h-4" />
+            <span class="hidden md:inline text-sm">{{ t('toolbar.image') }}</span>
           </button>
           <button
             @click="addText"
-            class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            :title="t('toolbar.text')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
           >
-            <Type class="w-5 h-5" />
-            <span>文字</span>
+            <Type class="w-4 h-4" />
+            <span class="hidden md:inline text-sm">{{ t('toolbar.text') }}</span>
           </button>
           <div class="relative">
             <button
               @click="toggleMenu('shape')"
-              class="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+              :title="t('toolbar.shape')"
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
             >
-              <Triangle class="w-5 h-5" />
-              <span>形状</span>
+              <Triangle class="w-4 h-4" />
+              <span class="hidden md:inline text-sm">{{ t('toolbar.shape') }}</span>
             </button>
             <div v-if="showShapeMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-4 gap-1 min-w-[200px]">
               <div class="absolute -top-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-gray-300"></div>
@@ -37,14 +40,14 @@
               class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Square class="w-4 h-4" />
-              <span>矩形</span>
+              <span>{{ t('shape.rectangle') }}</span>
             </button>
             <button
               @click="addShape('circle'); showShapeMenu = false"
               class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Circle class="w-4 h-4" />
-              <span>圆形</span>
+              <span>{{ t('shape.circle') }}</span>
             </button>
             <button
               @click="addShape('ellipse'); showShapeMenu = false"
@@ -53,52 +56,53 @@
               <span class="w-5 h-4 flex items-center justify-center">
                 <svg viewBox="0 0 24 14" class="w-full h-auto" style="max-height: 16px;"><ellipse cx="12" cy="7" rx="11" ry="6" fill="currentColor"/></svg>
               </span>
-              <span class="whitespace-nowrap">椭圆</span>
+              <span class="whitespace-nowrap">{{ t('shape.ellipse') }}</span>
             </button>
             <button
               @click="addShape('triangle'); showShapeMenu = false"
               class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Triangle class="w-4 h-4" />
-              <span class="whitespace-nowrap">三角形</span>
+              <span class="whitespace-nowrap">{{ t('shape.triangle') }}</span>
             </button>
             <button
               @click="addShape('diamond'); showShapeMenu = false"
               class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <span class="w-4 h-4 flex items-center justify-center text-lg">◆</span>
-              <span>菱形</span>
+              <span>{{ t('shape.diamond') }}</span>
             </button>
             <button
               @click="addShape('star'); showShapeMenu = false"
               class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Star class="w-4 h-4" />
-              <span>星形</span>
+              <span>Star</span>
             </button>
             <button
               @click="addShape('heart'); showShapeMenu = false"
               class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Heart class="w-4 h-4" />
-              <span>心形</span>
+              <span>{{ t('shape.heart') }}</span>
             </button>
             <button
               @click="addShape('arrow'); showShapeMenu = false"
               class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <ArrowRight class="w-4 h-4" />
-              <span>箭头</span>
+              <span>{{ t('shape.arrow') }}</span>
             </button>
             </div>
           </div>
           <div class="relative">
             <button
               @click="toggleMenu('icon')"
-              class="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              :title="t('toolbar.icon')"
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
             >
-              <Star class="w-5 h-5" />
-              <span>图标</span>
+              <Star class="w-4 h-4" />
+              <span class="hidden md:inline text-sm">{{ t('toolbar.icon') }}</span>
             </button>
             <div v-if="showIconMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-10 gap-1 min-w-[500px]">
                 <div class="absolute -top-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-gray-300"></div>
@@ -108,17 +112,18 @@
                 class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
               >
                 <component :is="icon.component" class="w-5 h-5" />
-                <span class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[40px]">{{ icon.label }}</span>
+                <span class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[40px]">{{ t(icon.label) }}</span>
               </button>
             </div>
           </div>
           <div class="relative">
             <button
               @click="toggleMenu('sticker')"
-              class="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+              :title="t('toolbar.sticker')"
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
             >
-              <Heart class="w-5 h-5" />
-              <span>贴纸</span>
+              <Heart class="w-4 h-4" />
+              <span class="hidden md:inline text-sm">{{ t('toolbar.sticker') }}</span>
             </button>
             <div v-if="showStickerMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-10 gap-1 min-w-[500px]">
                 <div class="absolute -top-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-gray-300"></div>
@@ -128,17 +133,18 @@
                 class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
               >
                 <span class="text-2xl">{{ sticker.emoji }}</span>
-                <span class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[40px]">{{ sticker.label }}</span>
+                <span class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[40px]">{{ t(sticker.label) }}</span>
               </button>
             </div>
           </div>
           <div class="relative">
             <button
               @click="toggleMenu('other')"
-              class="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              :title="t('toolbar.other')"
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
-              <MoreHorizontal class="w-5 h-5" />
-              <span>其他</span>
+              <MoreHorizontal class="w-4 h-4" />
+              <span class="hidden md:inline text-sm">{{ t('toolbar.other') }}</span>
             </button>
             <div v-if="showOtherMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
               <button
@@ -146,7 +152,7 @@
                 class="flex flex-col items-center gap-1 px-3 py-2 hover:bg-gray-100 rounded text-xs"
               >
                 <Square class="w-5 h-5" />
-                <span>边框</span>
+                <span>{{ t('toolbar.border') }}</span>
               </button>
               <button
                 @click="addTable(); showOtherMenu = false"
@@ -159,7 +165,7 @@
                   <line x1="9" y1="3" x2="9" y2="21"/>
                   <line x1="15" y1="3" x2="15" y2="21"/>
                 </svg>
-                <span>表格</span>
+                <span>{{ t('toolbar.table') }}</span>
               </button>
               <button
                 @click="addQRCode(); showOtherMenu = false"
@@ -174,17 +180,30 @@
                   <rect x="6" y="12" width="2" height="2"/>
                   <rect x="12" y="6" width="2" height="2"/>
                 </svg>
-                <span>二维码</span>
+                <span>{{ t('toolbar.qrcode') }}</span>
               </button>
             </div>
           </div>
           <button
             @click="exportImage"
-            class="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+            :title="t('toolbar.export')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
           >
-            <Download class="w-5 h-5" />
-            <span>导出</span>
+            <Download class="w-4 h-4" />
+            <span class="hidden md:inline text-sm">{{ t('toolbar.export') }}</span>
           </button>
+          <div class="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg">
+            <Globe class="w-3 h-3 text-gray-600" />
+            <select
+              :value="locale"
+              @change="changeLanguage($event.target.value)"
+              class="px-1.5 py-0.5 text-xs bg-transparent hover:bg-gray-100 cursor-pointer border-none outline-none focus:outline-none"
+            >
+              <option v-for="lang in availableLanguages" :key="lang.code" :value="lang.code">
+                {{ lang.label }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
     </header>
@@ -194,10 +213,10 @@
         <div class="bg-white rounded-lg border border-gray-200 p-3">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Layers class="w-5 h-5" />
-            图层管理
+            {{ t('app.layers') }}
           </h3>
           <div v-if="elements.length === 0" class="text-gray-400 text-sm">
-            暂无元素，请图片或文字
+            {{ t('app.noElements') }}
           </div>
           <div v-else class="space-y-2 max-h-80 overflow-y-auto">
             <div
@@ -240,21 +259,21 @@
               <button
                 @click.stop="moveUp(element)"
                 class="p-1 hover:bg-gray-200 rounded"
-                title="上移一层"
+                :title="t('layer.moveUp')"
               >
                 <ChevronUp class="w-4 h-4" />
               </button>
               <button
                 @click.stop="moveDown(element)"
                 class="p-1 hover:bg-gray-200 rounded"
-                title="下移一层"
+                :title="t('layer.moveDown')"
               >
                 <ChevronDown class="w-4 h-4" />
               </button>
               <button
                 @click.stop="deleteElement(element)"
                 class="p-1 hover:bg-red-100 text-red-500 rounded"
-                title="删除"
+                :title="t('common.delete')"
               >
                 <Trash2 class="w-4 h-4" />
               </button>
@@ -265,15 +284,15 @@
         <div v-if="selectedElement" class="bg-white rounded-lg border border-gray-200 p-3">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Edit3 class="w-5 h-5" />
-            素材编辑
+            {{ t('app.edit') }}
           </h3>
           
           <div v-if="selectedElement.type === 'image'" class="space-y-4">
             <div>
-              <label class="block text-sm text-gray-600 mb-2">裁剪区域 <span class="text-xs text-gray-400">(单位: %)</span></label>
+              <label class="block text-sm text-gray-600 mb-2">{{ t('image.crop') }} <span class="text-xs text-gray-400">({{ t('image.unit') }})</span></label>
               <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-xs text-gray-500 mb-1">上边距</label>
+                  <label class="block text-xs text-gray-500 mb-1">{{ t('image.cropTop') }}</label>
                   <div class="relative">
                     <input
                       type="number"
@@ -287,7 +306,7 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-xs text-gray-500 mb-1">下边距</label>
+                  <label class="block text-xs text-gray-500 mb-1">{{ t('image.cropBottom') }}</label>
                   <div class="relative">
                     <input
                       type="number"
@@ -301,7 +320,7 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-xs text-gray-500 mb-1">左边距</label>
+                  <label class="block text-xs text-gray-500 mb-1">{{ t('image.cropLeft') }}</label>
                   <div class="relative">
                     <input
                       type="number"
@@ -315,7 +334,7 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-xs text-gray-500 mb-1">右边距</label>
+                  <label class="block text-xs text-gray-500 mb-1">{{ t('image.cropRight') }}</label>
                   <div class="relative">
                     <input
                       type="number"
@@ -332,7 +351,7 @@
             </div>
             <div class="flex items-center gap-2">
               <div class="flex-1">
-                <label class="block text-sm text-gray-600 mb-1">圆角: {{ imageEditorData.borderRadius }}px</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('image.borderRadius') }}: {{ imageEditorData.borderRadius }}px</label>
                 <input
                   type="range"
                   v-model.number="imageEditorData.borderRadius"
@@ -345,39 +364,39 @@
               <button
                 @click="resetImageToOriginal"
                 class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm whitespace-nowrap"
-              >重置</button>
+              >{{ t('common.reset') }}</button>
             </div>
-            <div class="flex gap-2 pt-2">
+            <div class="flex gap-1.5 pt-2">
               <button
                 @click="undo"
                 :disabled="historyIndex <= 0"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >后退</button>
+              >{{ t('common.undo') }}</button>
               <button
                 @click="redo"
                 :disabled="historyIndex >= history.length - 1"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >前进</button>
+              >{{ t('common.redo') }}</button>
               <button
                 @click="duplicateElement"
-                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
-              >复制</button>
+                class="flex-1 px-2 py-1.5 border rounded-lg hover:bg-gray-50 text-xs"
+              >{{ t('common.duplicate') }}</button>
               <button
                 @click="deleteElement(selectedElement)"
-                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
-              >删除</button>
+                class="flex-1 px-2 py-1.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-xs"
+              >{{ t('common.delete') }}</button>
             </div>
           </div>
 
           <div v-else-if="selectedElement.type === 'border'" class="space-y-4">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">边框颜色</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('border.color') }}</label>
               <div class="flex items-center gap-2">
                 <input
                   type="color"
@@ -394,7 +413,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">边框宽度: {{ borderEditorData.borderWidth }}px</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('border.width') }}: {{ borderEditorData.borderWidth }}px</label>
               <input
                 type="range"
                 v-model.number="borderEditorData.borderWidth"
@@ -405,7 +424,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">圆角: {{ borderEditorData.borderRadius }}px</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('border.radius') }}: {{ borderEditorData.borderRadius }}px</label>
               <input
                 type="range"
                 v-model.number="borderEditorData.borderRadius"
@@ -416,50 +435,50 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">边框样式</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('border.style') }}</label>
               <select
                 v-model="borderEditorData.borderStyle"
                 @change="updateBorderElement"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                <option value="solid">实线</option>
-                <option value="dashed">虚线</option>
-                <option value="dotted">点线</option>
-                <option value="double">双线</option>
+                <option value="solid">{{ t('border.solid') }}</option>
+                <option value="dashed">{{ t('border.dashed') }}</option>
+                <option value="dotted">{{ t('border.dotted') }}</option>
+                <option value="double">{{ t('border.double') }}</option>
               </select>
             </div>
             <div class="border-t border-gray-200 pt-4">
-              <label class="block text-sm text-gray-600 mb-1">边框文字</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('border.text') }}</label>
               <textarea
                 v-model="borderEditorData.text"
                 @input="updateBorderElement"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
-                placeholder="输入边框内的文字"
+                :placeholder="t('border.textPlaceholder')"
                 rows="3"
               ></textarea>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">字体</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('border.fontFamily') }}</label>
               <select
                 v-model="borderEditorData.fontFamily"
                 @change="updateBorderElement"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                <optgroup label="中文字体">
+                <optgroup :label="t('font.chinese')">
                   <option v-for="font in availableFonts.chinese" :key="font.name" :value="font.name">
-                    {{ font.label }}
+                    {{ font.labelKey ? t(font.labelKey) : font.label }}
                   </option>
                 </optgroup>
-                <optgroup label="英文字体">
+                <optgroup :label="t('font.english')">
                   <option v-for="font in availableFonts.english" :key="font.name" :value="font.name">
-                    {{ font.label }}
+                    {{ font.labelKey ? t(font.labelKey) : font.label }}
                   </option>
                 </optgroup>
               </select>
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">字号: {{ borderEditorData.fontSize }}px</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('border.fontSize') }}: {{ borderEditorData.fontSize }}px</label>
                 <input
                   type="number"
                   v-model.number="borderEditorData.fontSize"
@@ -470,7 +489,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('border.fontColor') }}</label>
                 <input
                   type="color"
                   v-model="borderEditorData.fontColor"
@@ -483,7 +502,7 @@
           <div v-else-if="selectedElement.type === 'table'" class="space-y-4">
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">行数: {{ tableEditorData.rows }}</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('table.rows') }}: {{ tableEditorData.rows }}</label>
                 <input
                   type="number"
                   v-model.number="tableEditorData.rows"
@@ -494,7 +513,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-600 mb-1">列数: {{ tableEditorData.cols }}</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('table.cols') }}: {{ tableEditorData.cols }}</label>
                 <input
                   type="number"
                   v-model.number="tableEditorData.cols"
@@ -506,7 +525,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">边框颜色</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('table.borderColor') }}</label>
               <div class="flex items-center gap-2">
                 <input
                   type="color"
@@ -523,7 +542,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">边框宽度: {{ tableEditorData.borderWidth }}px</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('table.borderWidth') }}: {{ tableEditorData.borderWidth }}px</label>
               <input
                 type="range"
                 v-model.number="tableEditorData.borderWidth"
@@ -534,27 +553,27 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">字体</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('table.fontFamily') }}</label>
               <select
                 v-model="tableEditorData.fontFamily"
                 @change="updateTableElement"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                <optgroup label="中文字体">
+                <optgroup :label="t('font.chinese')">
                   <option v-for="font in availableFonts.chinese" :key="font.name" :value="font.name">
-                    {{ font.label }}
+                    {{ font.labelKey ? t(font.labelKey) : font.label }}
                   </option>
                 </optgroup>
-                <optgroup label="英文字体">
+                <optgroup :label="t('font.english')">
                   <option v-for="font in availableFonts.english" :key="font.name" :value="font.name">
-                    {{ font.label }}
+                    {{ font.labelKey ? t(font.labelKey) : font.label }}
                   </option>
                 </optgroup>
               </select>
             </div>
             <div class="grid grid-cols-2 gap-3 mt-3">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">字号: {{ tableEditorData.fontSize }}px</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('table.fontSize') }}: {{ tableEditorData.fontSize }}px</label>
                 <input
                   type="number"
                   v-model.number="tableEditorData.fontSize"
@@ -565,7 +584,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('table.fontColor') }}</label>
                 <input
                   type="color"
                   v-model="tableEditorData.fontColor"
@@ -575,7 +594,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-2">编辑单元格内容</label>
+              <label class="block text-sm text-gray-600 mb-2">{{ t('table.editCells') }}</label>
               <div class="max-h-48 overflow-auto">
                 <table class="w-full border-collapse">
                   <tbody>
@@ -590,7 +609,7 @@
                           :value="getTableCellValue(rowIndex, colIndex)"
                           @input="updateTableCell(rowIndex, colIndex, $event)"
                           class="w-full px-1 py-0.5 text-xs border-none outline-none bg-transparent"
-                          placeholder="单元格"
+                          :placeholder="t('table.cell')"
                         />
                       </td>
                     </tr>
@@ -598,56 +617,56 @@
                 </table>
               </div>
             </div>
-            <div class="flex gap-2 pt-2">
+            <div class="flex gap-1.5 pt-2">
               <button
                 @click="undo"
                 :disabled="historyIndex <= 0"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >后退</button>
+              >{{ t('common.undo') }}</button>
               <button
                 @click="redo"
                 :disabled="historyIndex >= history.length - 1"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >前进</button>
+              >{{ t('common.redo') }}</button>
               <button
                 @click="duplicateElement"
-                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
-              >复制</button>
+                class="flex-1 px-2 py-1.5 border rounded-lg hover:bg-gray-50 text-xs"
+              >{{ t('common.duplicate') }}</button>
               <button
                 @click="deleteElement(selectedElement)"
-                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
-              >删除</button>
+                class="flex-1 px-2 py-1.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-xs"
+              >{{ t('common.delete') }}</button>
             </div>
           </div>
 
           <div v-else-if="selectedElement.type === 'text'" class="space-y-4">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">字体</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('text.fontFamily') }}</label>
               <select
                 v-model="textEditorData.fontFamily"
                 @change="updateTextElement"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                <optgroup label="中文字体">
+                <optgroup :label="t('font.chinese')">
                   <option v-for="font in availableFonts.chinese" :key="font.name" :value="font.name">
-                    {{ font.label }}
+                    {{ font.labelKey ? t(font.labelKey) : font.label }}
                   </option>
                 </optgroup>
-                <optgroup label="英文字体">
+                <optgroup :label="t('font.english')">
                   <option v-for="font in availableFonts.english" :key="font.name" :value="font.name">
-                    {{ font.label }}
+                    {{ font.labelKey ? t(font.labelKey) : font.label }}
                   </option>
                 </optgroup>
               </select>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">字号: {{ textEditorData.fontSize }}px</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('text.fontSize') }}: {{ textEditorData.fontSize }}px</label>
               <input
                 type="range"
                 v-model.number="textEditorData.fontSize"
@@ -658,7 +677,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">颜色</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('text.color') }}</label>
               <div class="flex items-center gap-2">
                 <input
                   type="color"
@@ -675,7 +694,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">对齐</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('text.textAlign') }}</label>
               <div class="flex gap-2">
                 <button
                   @click="updateTextAlign('left')"
@@ -683,25 +702,25 @@
                     'flex-1 px-3 py-2 border rounded-lg text-sm',
                     textEditorData.textAlign === 'left' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-50'
                   ]"
-                >左</button>
+                >{{ t('text.left') }}</button>
                 <button
                   @click="updateTextAlign('center')"
                   :class="[
                     'flex-1 px-3 py-2 border rounded-lg text-sm',
                     textEditorData.textAlign === 'center' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-50'
                   ]"
-                >中</button>
+                >{{ t('text.center') }}</button>
                 <button
                   @click="updateTextAlign('right')"
                   :class="[
                     'flex-1 px-3 py-2 border rounded-lg text-sm',
                     textEditorData.textAlign === 'right' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-50'
                   ]"
-                >右</button>
+                >{{ t('text.right') }}</button>
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">样式</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('text.style') }}</label>
               <div class="flex gap-2">
                 <button
                   @click="updateTextStyle('bold')"
@@ -709,18 +728,18 @@
                     'flex-1 px-3 py-2 border rounded-lg text-sm font-bold',
                     textEditorData.bold ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-50'
                   ]"
-                >粗体</button>
+                >{{ t('text.bold') }}</button>
                 <button
                   @click="updateTextStyle('italic')"
                   :class="[
                     'flex-1 px-3 py-2 border rounded-lg text-sm italic',
                     textEditorData.italic ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-50'
                   ]"
-                >斜体</button>
+                >{{ t('text.italic') }}</button>
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">文字内容</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('text.content') }}</label>
               <textarea
                 v-model="textEditorData.text"
                 @input="updateTextElement"
@@ -728,37 +747,37 @@
                 rows="3"
               ></textarea>
             </div>
-            <div class="flex gap-2 pt-2">
+            <div class="flex gap-1.5 pt-2">
               <button
                 @click="undo"
                 :disabled="historyIndex <= 0"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >后退</button>
+              >{{ t('common.undo') }}</button>
               <button
                 @click="redo"
                 :disabled="historyIndex >= history.length - 1"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >前进</button>
+              >{{ t('common.redo') }}</button>
               <button
                 @click="duplicateElement"
-                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
-              >复制</button>
+                class="flex-1 px-2 py-1.5 border rounded-lg hover:bg-gray-50 text-xs"
+              >{{ t('common.duplicate') }}</button>
               <button
                 @click="deleteElement(selectedElement)"
-                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
-              >删除</button>
+                class="flex-1 px-2 py-1.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-xs"
+              >{{ t('common.delete') }}</button>
             </div>
           </div>
 
           <div v-else-if="selectedElement.type === 'shape'" class="space-y-4">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">形状颜色</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('shape.color') }}</label>
               <div class="flex items-center gap-2">
                 <input
                   type="color"
@@ -776,7 +795,7 @@
             </div>
             <div v-if="selectedElement?.shapeType === 'rectangle' || selectedElement?.shapeType === 'ellipse' || selectedElement?.shapeType === 'triangle' || selectedElement?.shapeType === 'diamond' || selectedElement?.shapeType === 'star' || selectedElement?.shapeType === 'heart' || selectedElement?.shapeType === 'arrow'" class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">宽度</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('shape.width') }}</label>
                 <input
                   type="number"
                   :value="selectedElement.width"
@@ -787,7 +806,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-600 mb-1">高度</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('shape.height') }}</label>
                 <input
                   type="number"
                   :value="selectedElement.height"
@@ -801,7 +820,7 @@
             <div v-if="selectedElement?.shapeType === 'rectangle'" class="space-y-2">
               <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-sm text-gray-600 mb-1">圆角</label>
+                  <label class="block text-sm text-gray-600 mb-1">{{ t('shape.borderRadius') }}</label>
                   <input
                     type="number"
                     :value="selectedElement?.borderRadius || 0"
@@ -814,7 +833,7 @@
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-sm text-gray-600 mb-1">透明度: {{ shapeEditorData.opacity }}%</label>
+                  <label class="block text-sm text-gray-600 mb-1">{{ t('shape.opacity') }}: {{ shapeEditorData.opacity }}%</label>
                   <input
                     type="range"
                     v-model.number="shapeEditorData.opacity"
@@ -825,7 +844,7 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                  <label class="block text-sm text-gray-600 mb-1">{{ t('shape.feather') }}: {{ shapeEditorData.blur }}px</label>
                   <input
                     type="range"
                     v-model.number="shapeEditorData.blur"
@@ -839,7 +858,7 @@
             </div>
             <div v-else-if="selectedElement?.shapeType === 'circle'" class="space-y-2">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">半径</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('shape.radius') }}</label>
                 <input
                   type="number"
                   :value="Math.round(selectedElement.width / 2)"
@@ -851,7 +870,7 @@
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-sm text-gray-600 mb-1">透明度: {{ shapeEditorData.opacity }}%</label>
+                  <label class="block text-sm text-gray-600 mb-1">{{ t('shape.opacity') }}: {{ shapeEditorData.opacity }}%</label>
                   <input
                     type="range"
                     v-model.number="shapeEditorData.opacity"
@@ -862,7 +881,7 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                  <label class="block text-sm text-gray-600 mb-1">{{ t('shape.feather') }}: {{ shapeEditorData.blur }}px</label>
                   <input
                     type="range"
                     v-model.number="shapeEditorData.blur"
@@ -876,7 +895,7 @@
             </div>
             <div v-else class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">透明度: {{ shapeEditorData.opacity }}%</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('shape.opacity') }}: {{ shapeEditorData.opacity }}%</label>
                 <input
                   type="range"
                   v-model.number="shapeEditorData.opacity"
@@ -887,7 +906,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('shape.feather') }}: {{ shapeEditorData.blur }}px</label>
                 <input
                   type="range"
                   v-model.number="shapeEditorData.blur"
@@ -898,47 +917,47 @@
                 />
               </div>
             </div>
-            <div class="flex gap-2 pt-2">
+            <div class="flex gap-1.5 pt-2">
               <button
                 @click="undo"
                 :disabled="historyIndex <= 0"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >后退</button>
+              >{{ t('common.undo') }}</button>
               <button
                 @click="redo"
                 :disabled="historyIndex >= history.length - 1"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >前进</button>
+              >{{ t('common.redo') }}</button>
               <button
                 @click="duplicateElement"
-                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
-              >复制</button>
+                class="flex-1 px-2 py-1.5 border rounded-lg hover:bg-gray-50 text-xs"
+              >{{ t('common.duplicate') }}</button>
               <button
                 @click="deleteElement(selectedElement)"
-                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
-              >删除</button>
+                class="flex-1 px-2 py-1.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-xs"
+              >{{ t('common.delete') }}</button>
             </div>
           </div>
 
           <div v-else-if="selectedElement.type === 'qrcode'" class="space-y-3">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">二维码内容</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('qrcode.content') }}</label>
               <textarea
                 v-model="qrCodeEditorData.content"
                 @input="updateQRCodeElement"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
                 rows="3"
-                placeholder="请输入二维码内容（网址、文本等）"
+                :placeholder="t('qrcode.placeholder')"
               ></textarea>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-2">二维码尺寸: {{ qrCodeEditorData.size }}px</label>
+              <label class="block text-sm text-gray-600 mb-2">{{ t('qrcode.size') }}: {{ qrCodeEditorData.size }}px</label>
               <input
                 type="range"
                 v-model.number="qrCodeEditorData.size"
@@ -950,7 +969,7 @@
             </div>
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">前景色</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('qrcode.foregroundColor') }}</label>
                 <input
                   type="color"
                   v-model="qrCodeEditorData.foregroundColor"
@@ -959,7 +978,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-600 mb-1">后景色</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('qrcode.backgroundColor') }}</label>
                 <input
                   type="color"
                   v-model="qrCodeEditorData.backgroundColor"
@@ -969,7 +988,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-2">边框宽度: {{ qrCodeEditorData.borderWidth }}px</label>
+              <label class="block text-sm text-gray-600 mb-2">{{ t('qrcode.borderWidth') }}: {{ qrCodeEditorData.borderWidth }}px</label>
               <input
                 type="range"
                 v-model.number="qrCodeEditorData.borderWidth"
@@ -980,17 +999,17 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-2">边框样式</label>
+              <label class="block text-sm text-gray-600 mb-2">{{ t('qrcode.borderStyle') }}</label>
               <div class="flex items-center gap-2">
                 <select
                   v-model="qrCodeEditorData.borderStyle"
                   @change="updateQRCodeElement"
                   class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
                 >
-                  <option value="none">无边框</option>
-                  <option value="solid">实线</option>
-                  <option value="dashed">虚线</option>
-                  <option value="dotted">点线</option>
+                  <option value="none">{{ t('qrcode.none') }}</option>
+                  <option value="solid">{{ t('qrcode.solid') }}</option>
+                  <option value="dashed">{{ t('qrcode.dashed') }}</option>
+                  <option value="dotted">{{ t('qrcode.dotted') }}</option>
                 </select>
                 <input
                   type="color"
@@ -1000,37 +1019,37 @@
                 />
               </div>
             </div>
-            <div class="flex gap-2 pt-2">
+            <div class="flex gap-1.5 pt-2">
               <button
                 @click="undo"
                 :disabled="historyIndex <= 0"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >后退</button>
+              >{{ t('common.undo') }}</button>
               <button
                 @click="redo"
                 :disabled="historyIndex >= history.length - 1"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >前进</button>
+              >{{ t('common.redo') }}</button>
               <button
                 @click="duplicateElement"
-                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
-              >复制</button>
+                class="flex-1 px-2 py-1.5 border rounded-lg hover:bg-gray-50 text-xs"
+              >{{ t('common.duplicate') }}</button>
               <button
                 @click="deleteElement(selectedElement)"
-                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
-              >删除</button>
+                class="flex-1 px-2 py-1.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-xs"
+              >{{ t('common.delete') }}</button>
             </div>
           </div>
 
           <div v-else-if="selectedElement.type === 'icon'" class="space-y-4">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">图标颜色</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('icon.color') }}</label>
               <div class="flex items-center gap-2">
                 <input
                   type="color"
@@ -1046,31 +1065,31 @@
                 />
               </div>
             </div>
-            <div class="flex gap-2 pt-2">
+            <div class="flex gap-1.5 pt-2">
               <button
                 @click="undo"
                 :disabled="historyIndex <= 0"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >后退</button>
+              >{{ t('common.undo') }}</button>
               <button
                 @click="redo"
                 :disabled="historyIndex >= history.length - 1"
                 :class="[
-                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  'flex-1 px-2 py-1.5 border rounded-lg text-xs',
                   historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
                 ]"
-              >前进</button>
+              >{{ t('common.redo') }}</button>
               <button
                 @click="duplicateElement"
-                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
-              >复制</button>
+                class="flex-1 px-2 py-1.5 border rounded-lg hover:bg-gray-50 text-xs"
+              >{{ t('common.duplicate') }}</button>
               <button
                 @click="deleteElement(selectedElement)"
-                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
-              >删除</button>
+                class="flex-1 px-2 py-1.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-xs"
+              >{{ t('common.delete') }}</button>
             </div>
           </div>
         </div>
@@ -1078,28 +1097,28 @@
         <div v-if="!selectedElement" class="bg-white rounded-lg border border-gray-200 p-3">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Palette class="w-5 h-5" />
-            画布设置
+            {{ t('canvas.settings') }}
           </h3>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">预设尺寸</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.preset') }}</label>
               <select
                 v-model="selectedPreset"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 @change="applyPreset"
               >
-                <option value="">自定义</option>
-                <option value="a4">A4 (210 × 297mm)</option>
-                <option value="a5">A5 (148 × 210mm)</option>
+                <option value="">{{ t('canvas.custom') }}</option>
+                <option value="a4">{{ t('canvas.a4') }}</option>
+                <option value="a5">{{ t('canvas.a5') }}</option>
                 <option value="a6">A6 (105 × 148mm)</option>
                 <option value="letter">Letter (8.5 × 11in)</option>
                 <option value="legal">Legal (8.5 × 14in)</option>
-                <option value="poster">海报 (800 × 600px)</option>
+                <option value="poster">{{ t('canvas.poster') }}</option>
               </select>
             </div>
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">画布宽度 (px)</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.width') }}</label>
                 <input
                   type="number"
                   v-model.number="canvasWidth"
@@ -1107,7 +1126,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-600 mb-1">画布高度 (px)</label>
+                <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.height') }}</label>
                 <input
                   type="number"
                   v-model.number="canvasHeight"
@@ -1116,7 +1135,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">背景类型</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.background') }}</label>
               <div class="flex gap-2">
                 <button
                   @click="canvasBgType = 'color'"
@@ -1125,7 +1144,7 @@
                     canvasBgType === 'color' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   ]"
                 >
-                  颜色
+                  {{ t('canvas.color') }}
                 </button>
                 <button
                   @click="canvasBgType = 'image'"
@@ -1134,12 +1153,12 @@
                     canvasBgType === 'image' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   ]"
                 >
-                  图片
+                  {{ t('canvas.image') }}
                 </button>
               </div>
             </div>
             <div v-if="canvasBgType === 'color'">
-              <label class="block text-sm text-gray-600 mb-1">背景颜色</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.bgColor') }}</label>
               <div class="flex items-center gap-2">
                 <input
                   type="color"
@@ -1154,7 +1173,7 @@
               </div>
             </div>
             <div v-if="canvasBgType === 'image'">
-              <label class="block text-sm text-gray-600 mb-1">背景图片</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.bgImage') }}</label>
               <div>
                 <input
                   type="file"
@@ -1168,25 +1187,25 @@
                   class="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
                 >
                   <Upload class="w-4 h-4" />
-                  {{ canvasBgImage ? '更换图片' : '上传图片' }}
+                  {{ canvasBgImage ? t('canvas.change') : t('canvas.upload') }}
                 </button>
                 <button
                   v-if="canvasBgImage"
                   @click="canvasBgImage = ''"
                   class="w-full mt-2 py-2 px-3 border border-red-300 rounded-lg text-sm text-red-600 hover:bg-red-50"
                 >
-                  移除图片
+                  {{ t('canvas.remove') }}
                 </button>
                 <div class="mt-3">
-                  <label class="block text-sm text-gray-600 mb-1">填充方式</label>
+                  <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.fillMode') }}</label>
                   <select
                     v-model="canvasBgFillMode"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
-                    <option value="resize">重置画布尺寸</option>
-                    <option value="cover">等比例铺满</option>
-                    <option value="stretch">拉伸铺满</option>
-                    <option value="actual">实际尺寸</option>
+                    <option value="resize">{{ t('canvas.resize') }}</option>
+                    <option value="cover">{{ t('canvas.cover') }}</option>
+                    <option value="stretch">{{ t('canvas.stretch') }}</option>
+                    <option value="actual">{{ t('canvas.actual') }}</option>
                   </select>
                 </div>
               </div>
@@ -1197,11 +1216,11 @@
         <div v-if="!selectedElement" class="bg-white rounded-lg border border-gray-200 p-3">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Settings class="w-5 h-5" />
-            默认设置
+            {{ t('defaults.title') }}
           </h3>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">图片圆角: {{ defaultSettings.imageBorderRadius }}px</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('defaults.imageBorderRadius') }}: {{ defaultSettings.imageBorderRadius }}px</label>
               <input
                 type="range"
                 v-model.number="defaultSettings.imageBorderRadius"
@@ -1211,7 +1230,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">文字字号: {{ defaultSettings.textFontSize }}px</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('defaults.textFontSize') }}: {{ defaultSettings.textFontSize }}px</label>
               <input
                 type="range"
                 v-model.number="defaultSettings.textFontSize"
@@ -1221,7 +1240,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1">文字颜色</label>
+              <label class="block text-sm text-gray-600 mb-1">{{ t('defaults.textColor') }}</label>
               <div class="flex items-center gap-2">
                 <input
                   type="color"
@@ -1328,7 +1347,7 @@
                   :src="element.qrDataUrl" 
                   :key="element.id + '-' + element.content + '-' + (element.qrKey || 0)"
                   class="max-w-full max-h-full object-contain"
-                  alt="二维码"
+                  :alt="t('common.qrcodeAlt')"
                 />
               </div>
               <div v-else-if="element.type === 'sticker'" class="w-full h-full flex items-center justify-center" :style="{ fontSize: `${Math.min(element.width, element.height) * (element.scale / 100) * 0.8}px` }">
@@ -1345,7 +1364,7 @@
                 <div v-if="element.text" class="text-center p-2" :style="{ fontFamily: element.fontFamily || 'Microsoft YaHei', fontSize: `${element.fontSize || 14}px`, color: element.fontColor || '#333333' }">
                   {{ element.text }}
                 </div>
-                <span v-else class="text-gray-400 text-sm">添加内容</span>
+                <span v-else class="text-gray-400 text-sm">{{ t('common.addContent') }}</span>
               </div>
               <div 
                 v-else-if="element.type === 'table'" 
@@ -1443,8 +1462,9 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, createVNode, render } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
-  LayoutGrid, ImagePlus, Type, Download, Layers,
+  LayoutGrid, ImagePlus, Type, Download, Layers, Globe,
   ChevronUp, ChevronDown, Trash2, Palette, X,
   AlignLeft, AlignCenter, AlignRight, Bold, Italic,
   Edit3, Copy, Image as ImageIcon, Upload, Square, Circle, Settings,
@@ -1465,37 +1485,37 @@ const bgImageInputRef = ref(null)
 
 const platformFonts = {
   windows: [
-    { name: 'Microsoft YaHei', label: '微软雅黑' },
-    { name: 'SimHei', label: '黑体' },
-    { name: 'SimSun', label: '宋体' },
-    { name: 'KaiTi', label: '楷体' },
-    { name: 'FangSong', label: '仿宋' },
-    { name: 'YouYuan', label: '幼圆' },
-    { name: 'SimKai', label: '华文楷体' },
-    { name: 'STSong', label: '华文宋体' },
-    { name: 'STXingkai', label: '华文行楷' },
-    { name: 'STXinwei', label: '华文新魏' },
-    { name: 'STLiti', label: '华文隶书' }
+    { name: 'Microsoft YaHei', labelKey: 'font.microsoftYaHei' },
+    { name: 'SimHei', labelKey: 'font.simHei' },
+    { name: 'SimSun', labelKey: 'font.simSun' },
+    { name: 'KaiTi', labelKey: 'font.kaiTi' },
+    { name: 'FangSong', labelKey: 'font.fangSong' },
+    { name: 'YouYuan', labelKey: 'font.youYuan' },
+    { name: 'SimKai', labelKey: 'font.simKai' },
+    { name: 'STSong', labelKey: 'font.stSong' },
+    { name: 'STXingkai', labelKey: 'font.stXingkai' },
+    { name: 'STXinwei', labelKey: 'font.stXinwei' },
+    { name: 'STLiti', labelKey: 'font.stLiti' }
   ],
   mac: [
-    { name: 'PingFang SC', label: '苹方' },
-    { name: 'Hiragino Sans GB', label: '冬青黑体' },
-    { name: 'STHeiti', label: '黑体' },
-    { name: 'STSong', label: '华文宋体' },
-    { name: 'STKaiti', label: '华文楷体' },
-    { name: 'STXingkai', label: '华文行楷' },
-    { name: 'STXinwei', label: '华文新魏' },
-    { name: 'STLiti', label: '华文隶书' },
-    { name: 'KaiTi', label: '楷体' },
-    { name: 'SimSun', label: '宋体' }
+    { name: 'PingFang SC', labelKey: 'font.pingFang' },
+    { name: 'Hiragino Sans GB', labelKey: 'font.hiragino' },
+    { name: 'STHeiti', labelKey: 'font.simHei' },
+    { name: 'STSong', labelKey: 'font.stSong' },
+    { name: 'STKaiti', labelKey: 'font.stKaiti' },
+    { name: 'STXingkai', labelKey: 'font.stXingkai' },
+    { name: 'STXinwei', labelKey: 'font.stXinwei' },
+    { name: 'STLiti', labelKey: 'font.stLiti' },
+    { name: 'KaiTi', labelKey: 'font.kaiTi' },
+    { name: 'SimSun', labelKey: 'font.simSun' }
   ],
   linux: [
-    { name: 'Noto Sans CJK SC', label: 'Noto Sans CJK SC' },
-    { name: 'Noto Serif CJK SC', label: 'Noto Serif CJK SC' },
-    { name: 'WenQuanYi Micro Hei', label: '文泉驿微米黑' },
-    { name: 'WenQuanYi Zen Hei', label: '文泉驿正黑' },
-    { name: 'STSong', label: '华文宋体' },
-    { name: 'SimSun', label: '宋体' }
+    { name: 'Noto Sans CJK SC', labelKey: 'font.notoSans' },
+    { name: 'Noto Serif CJK SC', labelKey: 'font.notoSerif' },
+    { name: 'WenQuanYi Micro Hei', labelKey: 'font.wenQuanYiMicro' },
+    { name: 'WenQuanYi Zen Hei', labelKey: 'font.wenQuanYiZen' },
+    { name: 'STSong', labelKey: 'font.stSong' },
+    { name: 'SimSun', labelKey: 'font.simSun' }
   ],
   common: [
     { name: 'Arial', label: 'Arial' },
@@ -1576,6 +1596,8 @@ const loadAvailableFonts = () => {
   borderEditorData.value.fontFamily = defaultFont
   tableEditorData.value.fontFamily = defaultFont
 }
+const { t, locale } = useI18n()
+
 const canvasWidth = ref(800)
 const canvasHeight = ref(600)
 const canvasBgColor = ref('#ffffff')
@@ -1617,130 +1639,130 @@ const defaultSettings = ref({
 })
 
 const iconList = [
-  { name: 'star', label: '星星', component: Star },
-  { name: 'heart', label: '心形', component: Heart },
-  { name: 'circle', label: '圆形', component: Circle },
-  { name: 'triangle', label: '三角', component: Triangle },
-  { name: 'square', label: '方形', component: Square },
-  { name: 'hexagon', label: '六角', component: Hexagon },
-  { name: 'arrow', label: '箭头', component: ArrowRight },
-  { name: 'check', label: '勾选', component: Check },
-  { name: 'x', label: '关闭', component: XCircle },
-  { name: 'download', label: '下载', component: Download },
-  { name: 'upload', label: '上传', component: Upload },
-  { name: 'edit', label: '编辑', component: Edit3 },
-  { name: 'copy', label: '复制', component: Copy },
-  { name: 'file', label: '文件', component: FileText },
-  { name: 'folder', label: '文件夹', component: Folder },
-  { name: 'settings', label: '设置', component: Settings },
-  { name: 'printer', label: '打印', component: Printer },
-  { name: 'home', label: '首页', component: Home },
-  { name: 'mail', label: '邮件', component: Mail },
-  { name: 'phone', label: '电话', component: Phone },
-  { name: 'map', label: '地图', component: MapPin },
-  { name: 'send', label: '发送', component: Send },
-  { name: 'share', label: '分享', component: Share2 },
-  { name: 'link', label: '链接', component: Link },
-  { name: 'external', label: '外链', component: ExternalLink },
-  { name: 'clock', label: '时钟', component: Clock },
-  { name: 'calendar', label: '日历', component: Calendar },
-  { name: 'camera', label: '相机', component: Camera },
-  { name: 'music', label: '音乐', component: Music },
-  { name: 'video', label: '视频', component: Video },
-  { name: 'book', label: '书籍', component: Book },
-  { name: 'alert', label: '警告', component: AlertCircle },
-  { name: 'info', label: '信息', component: Info },
-  { name: 'help', label: '帮助', component: HelpCircle },
-  { name: 'bell', label: '通知', component: Bell },
-  { name: 'lightbulb', label: '灯泡', component: Lightbulb },
-  { name: 'zap', label: '闪电', component: Zap },
-  { name: 'gift', label: '礼物', component: Gift },
-  { name: 'award', label: '奖章', component: Award },
-  { name: 'users', label: '用户', component: Users },
-  { name: 'user', label: '个人', component: User },
-  { name: 'bookmark', label: '书签', component: Bookmark },
-  { name: 'tag', label: '标签', component: Tag },
-  { name: 'sun', label: '太阳', component: Sun },
-  { name: 'moon', label: '月亮', component: Moon },
-  { name: 'cloud', label: '云朵', component: Cloud },
-  { name: 'rain', label: '下雨', component: CloudRain },
-  { name: 'snow', label: '雪花', component: Snowflake },
-  { name: 'wind', label: '风', component: Wind },
-  { name: 'wifi', label: 'WiFi', component: Wifi },
-  { name: 'battery', label: '电池', component: Battery },
-  { name: 'volume', label: '声音', component: Volume2 },
-  { name: 'mute', label: '静音', component: VolumeX },
-  { name: 'trending', label: '趋势', component: TrendingUp },
-  { name: 'layout', label: '布局', component: LayoutGrid },
-  { name: 'image', label: '图片', component: ImagePlus },
-  { name: 'text', label: '文字', component: Type },
-  { name: 'layer', label: '图层', component: Layers },
-  { name: 'up', label: '向上', component: ChevronUp },
-  { name: 'down', label: '向下', component: ChevronDown }
+  { name: 'star', label: 'icon.star', component: Star },
+  { name: 'heart', label: 'icon.heart', component: Heart },
+  { name: 'circle', label: 'icon.circle', component: Circle },
+  { name: 'triangle', label: 'icon.triangle', component: Triangle },
+  { name: 'square', label: 'icon.square', component: Square },
+  { name: 'hexagon', label: 'icon.hexagon', component: Hexagon },
+  { name: 'arrow', label: 'icon.arrow', component: ArrowRight },
+  { name: 'check', label: 'icon.check', component: Check },
+  { name: 'x', label: 'icon.x', component: XCircle },
+  { name: 'download', label: 'icon.download', component: Download },
+  { name: 'upload', label: 'icon.upload', component: Upload },
+  { name: 'edit', label: 'icon.edit', component: Edit3 },
+  { name: 'copy', label: 'icon.copy', component: Copy },
+  { name: 'file', label: 'icon.file', component: FileText },
+  { name: 'folder', label: 'icon.folder', component: Folder },
+  { name: 'settings', label: 'icon.settings', component: Settings },
+  { name: 'printer', label: 'icon.printer', component: Printer },
+  { name: 'home', label: 'icon.home', component: Home },
+  { name: 'mail', label: 'icon.mail', component: Mail },
+  { name: 'phone', label: 'icon.phone', component: Phone },
+  { name: 'map', label: 'icon.map', component: MapPin },
+  { name: 'send', label: 'icon.send', component: Send },
+  { name: 'share', label: 'icon.share', component: Share2 },
+  { name: 'link', label: 'icon.link', component: Link },
+  { name: 'external', label: 'icon.external', component: ExternalLink },
+  { name: 'clock', label: 'icon.clock', component: Clock },
+  { name: 'calendar', label: 'icon.calendar', component: Calendar },
+  { name: 'camera', label: 'icon.camera', component: Camera },
+  { name: 'music', label: 'icon.music', component: Music },
+  { name: 'video', label: 'icon.video', component: Video },
+  { name: 'book', label: 'icon.book', component: Book },
+  { name: 'alert', label: 'icon.alert', component: AlertCircle },
+  { name: 'info', label: 'icon.info', component: Info },
+  { name: 'help', label: 'icon.help', component: HelpCircle },
+  { name: 'bell', label: 'icon.bell', component: Bell },
+  { name: 'lightbulb', label: 'icon.lightbulb', component: Lightbulb },
+  { name: 'zap', label: 'icon.zap', component: Zap },
+  { name: 'gift', label: 'icon.gift', component: Gift },
+  { name: 'award', label: 'icon.award', component: Award },
+  { name: 'users', label: 'icon.users', component: Users },
+  { name: 'user', label: 'icon.user', component: User },
+  { name: 'bookmark', label: 'icon.bookmark', component: Bookmark },
+  { name: 'tag', label: 'icon.tag', component: Tag },
+  { name: 'sun', label: 'icon.sun', component: Sun },
+  { name: 'moon', label: 'icon.moon', component: Moon },
+  { name: 'cloud', label: 'icon.cloud', component: Cloud },
+  { name: 'rain', label: 'icon.rain', component: CloudRain },
+  { name: 'snow', label: 'icon.snow', component: Snowflake },
+  { name: 'wind', label: 'icon.wind', component: Wind },
+  { name: 'wifi', label: 'icon.wifi', component: Wifi },
+  { name: 'battery', label: 'icon.battery', component: Battery },
+  { name: 'volume', label: 'icon.volume', component: Volume2 },
+  { name: 'mute', label: 'icon.mute', component: VolumeX },
+  { name: 'trending', label: 'icon.trending', component: TrendingUp },
+  { name: 'layout', label: 'icon.layout', component: LayoutGrid },
+  { name: 'image', label: 'icon.image', component: ImagePlus },
+  { name: 'text', label: 'icon.text', component: Type },
+  { name: 'layer', label: 'icon.layer', component: Layers },
+  { name: 'up', label: 'icon.up', component: ChevronUp },
+  { name: 'down', label: 'icon.down', component: ChevronDown }
 ]
 
 const stickerList = [
-  { name: 'happy', label: '开心', emoji: '😊' },
-  { name: 'smile', label: '微笑', emoji: '🙂' },
-  { name: 'grin', label: '露齿笑', emoji: '😀' },
-  { name: 'laugh', label: '大笑', emoji: '😂' },
-  { name: 'joy', label: '笑哭', emoji: '😂' },
-  { name: 'cool', label: '酷', emoji: '😎' },
-  { name: 'sunglasses', label: '墨镜', emoji: '😎' },
-  { name: 'heart_eyes', label: '花痴', emoji: '😍' },
-  { name: 'blush', label: '害羞', emoji: '😳' },
-  { name: 'kiss', label: '飞吻', emoji: '😘' },
-  { name: 'wink', label: '眨眼', emoji: '😉' },
-  { name: 'sad', label: '难过', emoji: '😢' },
-  { name: 'cry', label: '哭泣', emoji: '😭' },
-  { name: 'tired', label: '疲惫', emoji: '😫' },
-  { name: 'sleepy', label: '困倦', emoji: '😴' },
-  { name: 'angry', label: '生气', emoji: '😠' },
-  { name: 'surprised', label: '惊讶', emoji: '😮' },
-  { name: 'thinking', label: '思考', emoji: '🤔' },
-  { name: 'love', label: '爱心', emoji: '❤️' },
-  { name: 'heart', label: '红心', emoji: '💖' },
-  { name: 'sparkling_heart', label: '闪亮心', emoji: '💖' },
-  { name: 'cupid', label: '丘比特', emoji: '💘' },
-  { name: 'two_hearts', label: '双心', emoji: '💕' },
-  { name: 'heart_hands', label: '比心', emoji: '🤍' },
-  { name: 'broken_heart', label: '心碎', emoji: '💔' },
-  { name: 'thumbsup', label: '点赞', emoji: '👍' },
-  { name: 'thumbsdown', label: '差评', emoji: '👎' },
-  { name: 'clap', label: '鼓掌', emoji: '👏' },
-  { name: 'wave', label: '挥手', emoji: '👋' },
-  { name: 'ok', label: 'OK', emoji: '👌' },
-  { name: 'fist', label: '拳头', emoji: '✊' },
-  { name: 'star', label: '星星', emoji: '⭐' },
-  { name: 'fire', label: '火焰', emoji: '🔥' },
-  { name: 'sparkle', label: '闪光', emoji: '✨' },
-  { name: 'sun', label: '太阳', emoji: '☀️' },
-  { name: 'cloud', label: '云朵', emoji: '☁️' },
-  { name: 'rainbow', label: '彩虹', emoji: '🌈' },
-  { name: 'umbrella', label: '雨伞', emoji: '☔' },
-  { name: 'snowflake', label: '雪花', emoji: '❄️' },
-  { name: 'zap', label: '闪电', emoji: '⚡' },
-  { name: 'celebrate', label: '庆祝', emoji: '🎉' },
-  { name: 'confetti', label: '彩带', emoji: '🎊' },
-  { name: 'party', label: '派对', emoji: '🥳' },
-  { name: 'cake', label: '蛋糕', emoji: '🎂' },
-  { name: 'gift', label: '礼物', emoji: '🎁' },
-  { name: 'balloon', label: '气球', emoji: '🎈' },
-  { name: 'flower', label: '花朵', emoji: '🌸' },
-  { name: 'trophy', label: '奖杯', emoji: '🏆' },
-  { name: 'medal', label: '奖牌', emoji: '🥇' },
-  { name: 'rocket', label: '火箭', emoji: '🚀' }
+  { name: 'happy', label: 'sticker.happy', emoji: '😊' },
+  { name: 'smile', label: 'sticker.smile', emoji: '🙂' },
+  { name: 'grin', label: 'sticker.grin', emoji: '😀' },
+  { name: 'laugh', label: 'sticker.laugh', emoji: '😂' },
+  { name: 'joy', label: 'sticker.joy', emoji: '😂' },
+  { name: 'cool', label: 'sticker.cool', emoji: '😎' },
+  { name: 'sunglasses', label: 'sticker.sunglasses', emoji: '😎' },
+  { name: 'heart_eyes', label: 'sticker.heart_eyes', emoji: '😍' },
+  { name: 'blush', label: 'sticker.blush', emoji: '😳' },
+  { name: 'kiss', label: 'sticker.kiss', emoji: '😘' },
+  { name: 'wink', label: 'sticker.wink', emoji: '😉' },
+  { name: 'sad', label: 'sticker.sad', emoji: '😢' },
+  { name: 'cry', label: 'sticker.cry', emoji: '😭' },
+  { name: 'tired', label: 'sticker.tired', emoji: '😫' },
+  { name: 'sleepy', label: 'sticker.sleepy', emoji: '😴' },
+  { name: 'angry', label: 'sticker.angry', emoji: '😠' },
+  { name: 'surprised', label: 'sticker.surprised', emoji: '😮' },
+  { name: 'thinking', label: 'sticker.thinking', emoji: '🤔' },
+  { name: 'love', label: 'sticker.love', emoji: '❤️' },
+  { name: 'heart', label: 'sticker.heart', emoji: '💖' },
+  { name: 'sparkling_heart', label: 'sticker.sparkling_heart', emoji: '💖' },
+  { name: 'cupid', label: 'sticker.cupid', emoji: '💘' },
+  { name: 'two_hearts', label: 'sticker.two_hearts', emoji: '💕' },
+  { name: 'heart_hands', label: 'sticker.heart_hands', emoji: '🤍' },
+  { name: 'broken_heart', label: 'sticker.broken_heart', emoji: '💔' },
+  { name: 'thumbsup', label: 'sticker.thumbsup', emoji: '👍' },
+  { name: 'thumbsdown', label: 'sticker.thumbsdown', emoji: '👎' },
+  { name: 'clap', label: 'sticker.clap', emoji: '👏' },
+  { name: 'wave', label: 'sticker.wave', emoji: '👋' },
+  { name: 'ok', label: 'sticker.ok', emoji: '👌' },
+  { name: 'fist', label: 'sticker.fist', emoji: '✊' },
+  { name: 'star', label: 'sticker.star', emoji: '⭐' },
+  { name: 'fire', label: 'sticker.fire', emoji: '🔥' },
+  { name: 'sparkle', label: 'sticker.sparkle', emoji: '✨' },
+  { name: 'sun', label: 'sticker.sun', emoji: '☀️' },
+  { name: 'cloud', label: 'sticker.cloud', emoji: '☁️' },
+  { name: 'rainbow', label: 'sticker.rainbow', emoji: '🌈' },
+  { name: 'umbrella', label: 'sticker.umbrella', emoji: '☔' },
+  { name: 'snowflake', label: 'sticker.snowflake', emoji: '❄️' },
+  { name: 'zap', label: 'sticker.zap', emoji: '⚡' },
+  { name: 'celebrate', label: 'sticker.celebrate', emoji: '🎉' },
+  { name: 'confetti', label: 'sticker.confetti', emoji: '🎊' },
+  { name: 'party', label: 'sticker.party', emoji: '🥳' },
+  { name: 'cake', label: 'sticker.cake', emoji: '🎂' },
+  { name: 'gift', label: 'sticker.gift', emoji: '🎁' },
+  { name: 'balloon', label: 'sticker.balloon', emoji: '🎈' },
+  { name: 'flower', label: 'sticker.flower', emoji: '🌸' },
+  { name: 'trophy', label: 'sticker.trophy', emoji: '🏆' },
+  { name: 'medal', label: 'sticker.medal', emoji: '🥇' },
+  { name: 'rocket', label: 'sticker.rocket', emoji: '🚀' }
 ]
 
 const borderList = [
-  { name: 'solid', label: '实线', style: 'solid', color: '#333333', radius: 0 },
-  { name: 'dashed', label: '虚线', style: 'dashed', color: '#333333', radius: 0 },
-  { name: 'dotted', label: '点线', style: 'dotted', color: '#333333', radius: 0 },
-  { name: 'double', label: '双线', style: 'double', color: '#333333', radius: 0 },
-  { name: 'rounded', label: '圆角', style: 'solid', color: '#333333', radius: 8 },
-  { name: 'rounded-lg', label: '大圆角', style: 'solid', color: '#333333', radius: 16 },
-  { name: 'red', label: '红色', style: 'solid', color: '#ef4444', radius: 0 },
-  { name: 'blue', label: '蓝色', style: 'solid', color: '#3b82f6', radius: 0 }
+  { name: 'solid', style: 'solid', color: '#333333', radius: 0 },
+  { name: 'dashed', style: 'dashed', color: '#333333', radius: 0 },
+  { name: 'dotted', style: 'dotted', color: '#333333', radius: 0 },
+  { name: 'double', style: 'double', color: '#333333', radius: 0 },
+  { name: 'rounded', style: 'solid', color: '#333333', radius: 8 },
+  { name: 'rounded-lg', style: 'solid', color: '#333333', radius: 16 },
+  { name: 'red', style: 'solid', color: '#ef4444', radius: 0 },
+  { name: 'blue', style: 'solid', color: '#3b82f6', radius: 0 }
 ]
 
 const imageEditorData = ref({
@@ -1945,75 +1967,75 @@ const updateTextStyle = (style) => {
 
 const getLayerName = (element) => {
   if (element.type === 'image') {
-    return '图片'
+    return t('layer.image')
   } else if (element.type === 'text') {
-    return '文字'
+    return t('layer.text')
   } else if (element.type === 'shape') {
     const shapeNames = {
-      rectangle: '矩形',
-      circle: '圆形',
-      ellipse: '椭圆',
-      triangle: '三角形',
-      diamond: '菱形',
-      star: '五角星',
-      heart: '心形',
-      arrow: '箭头'
+      rectangle: t('shape.rectangle'),
+      circle: t('shape.circle'),
+      ellipse: t('shape.ellipse'),
+      triangle: t('shape.triangle'),
+      diamond: t('shape.diamond'),
+      star: t('shape.star'),
+      heart: t('shape.heart'),
+      arrow: t('shape.arrow')
     }
-    return shapeNames[element.shapeType] || '形状'
+    return shapeNames[element.shapeType] || t('layer.shape')
   } else if (element.type === 'icon') {
     const iconNames = {
-      star: '星星',
-      heart: '心形',
-      circle: '圆形',
-      triangle: '三角',
-      square: '方形',
-      hexagon: '六角',
-      arrow: '箭头',
-      download: '下载',
-      upload: '上传',
-      edit: '编辑',
-      copy: '复制',
-      settings: '设置'
+      star: t('icon.star'),
+      heart: t('icon.heart'),
+      circle: t('icon.circle'),
+      triangle: t('icon.triangle'),
+      square: t('icon.square'),
+      hexagon: t('icon.hexagon'),
+      arrow: t('icon.arrow'),
+      download: t('icon.download'),
+      upload: t('icon.upload'),
+      edit: t('icon.edit'),
+      copy: t('icon.copy'),
+      settings: t('icon.settings')
     }
-    return iconNames[element.iconName] || '图标'
+    return iconNames[element.iconName] || t('layer.icon')
   } else if (element.type === 'sticker') {
     const stickerNames = {
-      happy: '开心',
-      love: '爱心',
-      star: '星星',
-      fire: '火焰',
-      sparkle: '闪光',
-      thumbsup: '点赞',
-      heart_eyes: '花痴',
-      laugh: '大笑',
-      cool: '酷',
-      sad: '难过',
-      angry: '生气',
-      surprised: '惊讶',
-      celebrate: '庆祝',
-      confetti: '彩带',
-      cake: '蛋糕',
-      party: '派对'
+      happy: t('sticker.happy'),
+      love: t('sticker.love'),
+      star: t('sticker.star'),
+      fire: t('sticker.fire'),
+      sparkle: t('sticker.sparkle'),
+      thumbsup: t('sticker.thumbsup'),
+      heart_eyes: t('sticker.heart_eyes'),
+      laugh: t('sticker.laugh'),
+      cool: t('sticker.cool'),
+      sad: t('sticker.sad'),
+      angry: t('sticker.angry'),
+      surprised: t('sticker.surprised'),
+      celebrate: t('sticker.celebrate'),
+      confetti: t('sticker.confetti'),
+      cake: t('sticker.cake'),
+      party: t('sticker.party')
     }
-    return stickerNames[element.stickerName] || '贴纸'
+    return stickerNames[element.stickerName] || t('layer.sticker')
   } else if (element.type === 'border') {
     const borderNames = {
-      solid: '实线边框',
-      dashed: '虚线边框',
-      dotted: '点线边框',
-      double: '双线边框',
-      rounded: '圆角边框',
-      'rounded-lg': '大圆角边框',
-      red: '红色边框',
-      blue: '蓝色边框'
+      solid: t('border.solid'),
+      dashed: t('border.dashed'),
+      dotted: t('border.dotted'),
+      double: t('border.double'),
+      rounded: t('border.rounded'),
+      'rounded-lg': t('border.rounded-lg'),
+      red: t('border.red'),
+      blue: t('border.blue')
     }
-    return borderNames[element.borderName] || '边框'
+    return borderNames[element.borderName] || t('layer.border')
   } else if (element.type === 'table') {
-    return '表格'
+    return t('layer.table')
   } else if (element.type === 'qrcode') {
-    return '二维码'
+    return t('layer.qrcode')
   }
-  return '元素'
+  return 'Element'
 }
 
 const sortedElements = computed(() => {
@@ -2132,6 +2154,16 @@ const getCanvasStyle = () => {
     }
   }
   return style
+}
+
+const availableLanguages = [
+  { code: 'zh-CN', label: '中文' },
+  { code: 'en', label: 'English' }
+]
+
+const changeLanguage = (lang) => {
+  locale.value = lang
+  document.getElementById('page-title').textContent = t('app.title')
 }
 
 const presetSizes = {
@@ -2385,9 +2417,9 @@ const addTable = () => {
     rows: 3,
     cols: 3,
     cells: [
-      { text: '单元格1' }, { text: '单元格2' }, { text: '单元格3' },
-      { text: '单元格4' }, { text: '单元格5' }, { text: '单元格6' },
-      { text: '单元格7' }, { text: '单元格8' }, { text: '单元格9' }
+      { text: `${t('table.cell')}1` }, { text: `${t('table.cell')}2` }, { text: `${t('table.cell')}3` },
+      { text: `${t('table.cell')}4` }, { text: `${t('table.cell')}5` }, { text: `${t('table.cell')}6` },
+      { text: `${t('table.cell')}7` }, { text: `${t('table.cell')}8` }, { text: `${t('table.cell')}9` }
     ],
     x: (canvasWidth.value - width) / 2,
     y: (canvasHeight.value - height) / 2,
@@ -2864,7 +2896,7 @@ const addText = () => {
   const newElement = {
     id: ++idCounter,
     type: 'text',
-    text: '双击编辑文字',
+    text: t('common.doubleClickEdit'),
     x: canvasWidth.value / 2 - 100,
     y: canvasHeight.value / 2 - fontSize / 2,
     width: 200,
@@ -3586,7 +3618,7 @@ const exportImage = async () => {
     hideElements.forEach(el => el.style.display = '')
 
     const link = document.createElement('a')
-    link.download = `小报_${Date.now()}.png`
+    link.download = `${t('common.poster')}_${Date.now()}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
 
@@ -3594,8 +3626,8 @@ const exportImage = async () => {
     canvasRef.value.style.width = originalWidth
     canvasRef.value.style.height = originalHeight
   } catch (error) {
-    console.error('导出失败:', error)
-    alert('导出失败，请重试')
+    console.error(t('common.exportFailed'), error)
+    alert(t('common.exportFailed'))
   }
 }
 
