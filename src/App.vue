@@ -3016,80 +3016,56 @@ const exportImage = async () => {
           ctx.shadowBlur = blur * 2
         }
         
-        ctx.fillStyle = element.color
-        
-        if (element.shapeType === 'circle') {
-          ctx.beginPath()
-          ctx.arc(element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2, displayWidth / 2, 0, Math.PI * 2)
-          ctx.fill()
-        } else if (element.shapeType === 'ellipse') {
-          ctx.beginPath()
-          ctx.ellipse(element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2, displayWidth / 2, displayHeight / 2, 0, 0, Math.PI * 2)
-          ctx.fill()
-        } else if (element.shapeType === 'rectangle') {
-          const borderRadius = (element.borderRadius || 0) * scale
-          ctx.beginPath()
-          ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, borderRadius)
-          ctx.fill()
-        } else if (element.shapeType === 'triangle') {
-          ctx.beginPath()
-          ctx.moveTo(element.x * scale + displayWidth / 2, element.y * scale)
-          ctx.lineTo(element.x * scale + displayWidth, element.y * scale + displayHeight)
-          ctx.lineTo(element.x * scale, element.y * scale + displayHeight)
-          ctx.closePath()
-          ctx.fill()
-        } else if (element.shapeType === 'diamond') {
-          ctx.beginPath()
-          ctx.moveTo(element.x * scale + displayWidth / 2, element.y * scale)
-          ctx.lineTo(element.x * scale + displayWidth, element.y * scale + displayHeight / 2)
-          ctx.lineTo(element.x * scale + displayWidth / 2, element.y * scale + displayHeight)
-          ctx.lineTo(element.x * scale, element.y * scale + displayHeight / 2)
-          ctx.closePath()
-          ctx.fill()
-        } else if (element.shapeType === 'star') {
-          ctx.beginPath()
-          const spikes = 5
-          const outerRadius = displayWidth / 2
-          const innerRadius = outerRadius / 2
-          for (let i = 0; i < spikes * 2; i++) {
-            const radius = i % 2 === 0 ? outerRadius : innerRadius
-            const angle = (Math.PI / spikes) * i - Math.PI / 2
-            const x = element.x * scale + displayWidth / 2 + Math.cos(angle) * radius
-            const y = element.y * scale + displayHeight / 2 + Math.sin(angle) * radius
-            if (i === 0) ctx.moveTo(x, y)
-            else ctx.lineTo(x, y)
-          }
-          ctx.closePath()
-          ctx.fill()
-        } else if (element.shapeType === 'heart') {
-          ctx.beginPath()
-          const width = displayWidth
-          const height = displayHeight
-          ctx.moveTo(element.x * scale + width / 2, element.y * scale + height * 0.85)
-          ctx.bezierCurveTo(element.x * scale + width, element.y * scale + height * 0.35, element.x * scale + width * 0.2, element.y * scale + height * 0.3, element.x * scale + width * 0.2, element.y * scale + height * 0.5)
-          ctx.bezierCurveTo(element.x * scale, element.y * scale + height * 0.55, element.x * scale, element.y * scale + height * 0.75, element.x * scale + width * 0.2, element.y * scale + height * 0.85)
-          ctx.lineTo(element.x * scale + width / 2, element.y * scale + height * 0.05)
-          ctx.lineTo(element.x * scale + width * 0.8, element.y * scale + height * 0.85)
-          ctx.bezierCurveTo(element.x * scale + width, element.y * scale + height * 0.75, element.x * scale + width, element.y * scale + height * 0.55, element.x * scale + width * 0.8, element.y * scale + height * 0.5)
-          ctx.bezierCurveTo(element.x * scale + width * 0.8, element.y * scale + height * 0.3, element.x * scale + width * 0, element.y * scale + height * 0.35, element.x * scale + width / 2, element.y * scale + height * 0.85)
-          ctx.closePath()
-          ctx.fill()
-        } else if (element.shapeType === 'arrow') {
-          const width = displayWidth
-          const height = displayHeight
-          const shaftWidth = height * 0.3
-          const arrowHeadLen = height * 0.5
+        const shapeCanvas = await exportShapeToCanvas(element, scale)
+        if (shapeCanvas) {
+          ctx.drawImage(shapeCanvas, element.x * scale, element.y * scale, displayWidth, displayHeight)
+        } else {
+          ctx.fillStyle = element.color
           
-          ctx.beginPath()
-          ctx.moveTo(element.x * scale, element.y * scale + height / 2 - shaftWidth / 2)
-          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale + height / 2 - shaftWidth / 2)
-          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale)
-          ctx.lineTo(element.x * scale + width, element.y * scale + height / 2)
-          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale + height)
-          ctx.lineTo(element.x * scale + width - arrowHeadLen, element.y * scale + height / 2 + shaftWidth / 2)
-          ctx.lineTo(element.x * scale, element.y * scale + height / 2 + shaftWidth / 2)
-          ctx.closePath()
-          ctx.fill()
+          if (element.shapeType === 'circle') {
+            ctx.beginPath()
+            ctx.arc(element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2, displayWidth / 2, 0, Math.PI * 2)
+            ctx.fill()
+          } else if (element.shapeType === 'ellipse') {
+            ctx.beginPath()
+            ctx.ellipse(element.x * scale + displayWidth / 2, element.y * scale + displayHeight / 2, displayWidth / 2, displayHeight / 2, 0, 0, Math.PI * 2)
+            ctx.fill()
+          } else if (element.shapeType === 'rectangle') {
+            const borderRadius = (element.borderRadius || 0) * scale
+            ctx.beginPath()
+            ctx.roundRect(element.x * scale, element.y * scale, displayWidth, displayHeight, borderRadius)
+            ctx.fill()
+          } else if (element.shapeType === 'triangle') {
+            ctx.beginPath()
+            ctx.moveTo(element.x * scale + displayWidth / 2, element.y * scale)
+            ctx.lineTo(element.x * scale + displayWidth, element.y * scale + displayHeight)
+            ctx.lineTo(element.x * scale, element.y * scale + displayHeight)
+            ctx.closePath()
+            ctx.fill()
+          } else if (element.shapeType === 'diamond') {
+            ctx.beginPath()
+            ctx.moveTo(element.x * scale + displayWidth / 2, element.y * scale)
+            ctx.lineTo(element.x * scale + displayWidth, element.y * scale + displayHeight / 2)
+            ctx.lineTo(element.x * scale + displayWidth / 2, element.y * scale + displayHeight)
+            ctx.lineTo(element.x * scale, element.y * scale + displayHeight / 2)
+            ctx.closePath()
+            ctx.fill()
+          } else if (element.shapeType === 'star') {
+            ctx.beginPath()
+            const spikes = 5
+            const outerRadius = displayWidth / 2
+            const innerRadius = outerRadius / 2
+            for (let i = 0; i < spikes * 2; i++) {
+              const radius = i % 2 === 0 ? outerRadius : innerRadius
+              const angle = (Math.PI / spikes) * i - Math.PI / 2
+              const x = element.x * scale + displayWidth / 2 + Math.cos(angle) * radius
+              const y = element.y * scale + displayHeight / 2 + Math.sin(angle) * radius
+              if (i === 0) ctx.moveTo(x, y)
+              else ctx.lineTo(x, y)
+            }
+            ctx.closePath()
+            ctx.fill()
+          }
         }
         
         ctx.restore()
@@ -3290,6 +3266,71 @@ const exportIconToCanvas = async (element, scale) => {
   render(null, tempDiv)
   
   return iconCanvas
+}
+
+const exportShapeToCanvas = async (element, scale) => {
+  const tempDiv = document.createElement('div')
+  tempDiv.style.position = 'absolute'
+  tempDiv.style.top = '-10000px'
+  tempDiv.style.width = `${element.width}px`
+  tempDiv.style.height = `${element.height}px`
+  tempDiv.style.display = 'flex'
+  tempDiv.style.alignItems = 'center'
+  tempDiv.style.justifyContent = 'center'
+  document.body.appendChild(tempDiv)
+  
+  let svgContent = ''
+  const borderRadius = element.borderRadius || 0
+  const w = element.width
+  const h = element.height
+  
+  if (element.shapeType === 'rectangle') {
+    const rx = borderRadius * w / 100
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect x="0" y="0" width="${w}" height="${h}" rx="${rx}" fill="${element.color}"/></svg>`
+  } else if (element.shapeType === 'circle') {
+    const radius = Math.min(w, h) / 2
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><circle cx="${w/2}" cy="${h/2}" r="${radius}" fill="${element.color}"/></svg>`
+  } else if (element.shapeType === 'ellipse') {
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><ellipse cx="${w/2}" cy="${h/2}" rx="${w/2}" ry="${h/2}" fill="${element.color}"/></svg>`
+  } else if (element.shapeType === 'heart') {
+    const scaleX = w / 24
+    const scaleY = h / 24
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${element.color}"/></svg>`
+  } else if (element.shapeType === 'star') {
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet"><polygon points="12,2 15,9 22,9 16,14 18,22 12,18 6,22 8,14 2,9 9,9" fill="${element.color}"/></svg>`
+  } else if (element.shapeType === 'arrow') {
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet"><rect x="3" y="8" width="14" height="8" rx="1" fill="${element.color}"/><polygon points="17,4 24,12 17,20" fill="${element.color}"/></svg>`
+  } else if (element.shapeType === 'triangle') {
+    const cx = w / 2
+    const cy = h
+    const base = w * 0.9
+    const pointY = h * 0.1
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polygon points="${cx},${pointY} ${w - w*0.05},${cy - h*0.05} ${w*0.05},${cy - h*0.05}" fill="${element.color}"/></svg>`
+  } else if (element.shapeType === 'hexagon') {
+    const cx = w / 2
+    const cy = h / 2
+    const rx = w * 0.45
+    const ry = h * 0.45
+    const points = []
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI / 3) * i - Math.PI / 2
+      points.push(`${cx + Math.cos(angle) * rx},${cy + Math.sin(angle) * ry}`)
+    }
+    svgContent = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polygon points="${points.join(' ')}" fill="${element.color}"/></svg>`
+  } else {
+    return null
+  }
+  
+  tempDiv.innerHTML = svgContent
+  
+  const shapeCanvas = await html2canvas(tempDiv, {
+    backgroundColor: null,
+    scale: scale
+  })
+  
+  document.body.removeChild(tempDiv)
+  
+  return shapeCanvas
 }
 
 const parseSvgPath = (ctx, pathData, cx, cy, scale) => {
