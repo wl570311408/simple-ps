@@ -161,6 +161,21 @@
                 </svg>
                 <span>表格</span>
               </button>
+              <button
+                @click="addQRCode(); showOtherMenu = false"
+                class="flex flex-col items-center gap-1 px-3 py-2 hover:bg-gray-100 rounded text-xs"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <rect x="6" y="6" width="4" height="4"/>
+                  <rect x="14" y="6" width="4" height="4"/>
+                  <rect x="6" y="14" width="4" height="4"/>
+                  <rect x="16" y="16" width="2" height="2"/>
+                  <rect x="6" y="12" width="2" height="2"/>
+                  <rect x="12" y="6" width="2" height="2"/>
+                </svg>
+                <span>二维码</span>
+              </button>
             </div>
           </div>
           <button
@@ -208,6 +223,15 @@
                 <line x1="3" y1="15" x2="21" y2="15"/>
                 <line x1="9" y1="3" x2="9" y2="21"/>
                 <line x1="15" y1="3" x2="15" y2="21"/>
+              </svg>
+              <svg v-else-if="element.type === 'qrcode'" class="w-5 h-5 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <rect x="6" y="6" width="4" height="4"/>
+                <rect x="14" y="6" width="4" height="4"/>
+                <rect x="6" y="14" width="4" height="4"/>
+                <rect x="16" y="16" width="2" height="2"/>
+                <rect x="6" y="12" width="2" height="2"/>
+                <rect x="12" y="6" width="2" height="2"/>
               </svg>
               <Circle v-else class="w-5 h-5 text-gray-600" />
               <span class="text-sm flex-1 truncate" :style="element.type === 'shape' ? { color: element.color } : {}">
@@ -902,6 +926,108 @@
             </div>
           </div>
 
+          <div v-else-if="selectedElement.type === 'qrcode'" class="space-y-3">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">二维码内容</label>
+              <textarea
+                v-model="qrCodeEditorData.content"
+                @input="updateQRCodeElement"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+                rows="3"
+                placeholder="请输入二维码内容（网址、文本等）"
+              ></textarea>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-2">二维码尺寸: {{ qrCodeEditorData.size }}px</label>
+              <input
+                type="range"
+                v-model.number="qrCodeEditorData.size"
+                @input="updateQRCodeElement"
+                min="50"
+                max="300"
+                class="w-full"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">前景色</label>
+                <input
+                  type="color"
+                  v-model="qrCodeEditorData.foregroundColor"
+                  @input="updateQRCodeElement"
+                  class="w-full h-8 rounded cursor-pointer border border-gray-300"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">后景色</label>
+                <input
+                  type="color"
+                  v-model="qrCodeEditorData.backgroundColor"
+                  @input="updateQRCodeElement"
+                  class="w-full h-8 rounded cursor-pointer border border-gray-300"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-2">边框宽度: {{ qrCodeEditorData.borderWidth }}px</label>
+              <input
+                type="range"
+                v-model.number="qrCodeEditorData.borderWidth"
+                @input="updateQRCodeElement"
+                min="0"
+                max="20"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-2">边框样式</label>
+              <div class="flex items-center gap-2">
+                <select
+                  v-model="qrCodeEditorData.borderStyle"
+                  @change="updateQRCodeElement"
+                  class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                >
+                  <option value="none">无边框</option>
+                  <option value="solid">实线</option>
+                  <option value="dashed">虚线</option>
+                  <option value="dotted">点线</option>
+                </select>
+                <input
+                  type="color"
+                  v-model="qrCodeEditorData.borderColor"
+                  @input="updateQRCodeElement"
+                  class="w-10 h-8 rounded cursor-pointer border border-gray-300"
+                />
+              </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button
+                @click="undo"
+                :disabled="historyIndex <= 0"
+                :class="[
+                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                ]"
+              >后退</button>
+              <button
+                @click="redo"
+                :disabled="historyIndex >= history.length - 1"
+                :class="[
+                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                ]"
+              >前进</button>
+              <button
+                @click="duplicateElement"
+                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
+              >复制</button>
+              <button
+                @click="deleteElement(selectedElement)"
+                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
+              >删除</button>
+            </div>
+          </div>
+
           <div v-else-if="selectedElement.type === 'icon'" class="space-y-4">
             <div>
               <label class="block text-sm text-gray-600 mb-1">图标颜色</label>
@@ -1197,6 +1323,14 @@
                   :style="{ color: element.color }"
                 />
               </div>
+              <div v-else-if="element.type === 'qrcode'" class="w-full h-full flex items-center justify-center bg-white">
+                <img 
+                  :src="element.qrDataUrl" 
+                  :key="element.id + '-' + element.content + '-' + (element.qrKey || 0)"
+                  class="max-w-full max-h-full object-contain"
+                  alt="二维码"
+                />
+              </div>
               <div v-else-if="element.type === 'sticker'" class="w-full h-full flex items-center justify-center" :style="{ fontSize: `${Math.min(element.width, element.height) * (element.scale / 100) * 0.8}px` }">
                 {{ element.emoji }}
               </div>
@@ -1323,6 +1457,7 @@ import {
   Wifi, Battery, Volume2, VolumeX, Printer, TrendingUp
 } from 'lucide-vue-next'
 import html2canvas from 'html2canvas'
+import QRCode from 'qrcode'
 
 const fileInputRef = ref(null)
 const canvasRef = ref(null)
@@ -1875,6 +2010,8 @@ const getLayerName = (element) => {
     return borderNames[element.borderName] || '边框'
   } else if (element.type === 'table') {
     return '表格'
+  } else if (element.type === 'qrcode') {
+    return '二维码'
   }
   return '元素'
 }
@@ -2266,6 +2403,171 @@ const addTable = () => {
   selectElement(newElement)
 }
 
+const qrCodeEditorData = ref({
+  content: 'https://example.com',
+  size: 150,
+  foregroundColor: '#000000',
+  backgroundColor: '#ffffff',
+  borderStyle: 'none',
+  borderColor: '#333333',
+  borderWidth: 0
+})
+
+const addQRCode = () => {
+  const size = qrCodeEditorData.value.size
+  
+  const newElement = {
+    id: ++idCounter,
+    type: 'qrcode',
+    x: (canvasWidth.value - size) / 2,
+    y: (canvasHeight.value - size) / 2,
+    width: size,
+    height: size,
+    scale: 100,
+    content: qrCodeEditorData.value.content,
+    foregroundColor: qrCodeEditorData.value.foregroundColor,
+    backgroundColor: qrCodeEditorData.value.backgroundColor,
+    borderStyle: qrCodeEditorData.value.borderStyle,
+    borderColor: qrCodeEditorData.value.borderColor,
+    borderWidth: qrCodeEditorData.value.borderWidth,
+    qrDataUrl: generateQRCodeDataUrl(
+      qrCodeEditorData.value.content, 
+      size, 
+      qrCodeEditorData.value.foregroundColor,
+      qrCodeEditorData.value.backgroundColor,
+      qrCodeEditorData.value.borderStyle, 
+      qrCodeEditorData.value.borderColor, 
+      qrCodeEditorData.value.borderWidth
+    ),
+    zIndex: elements.value.length + 1
+  }
+  
+  elements.value.push(newElement)
+  selectElement(newElement)
+}
+
+const updateQRCodeElement = () => {
+  if (selectedElement.value && selectedElement.value.type === 'qrcode') {
+    saveHistory(selectedElement.value)
+    selectedElement.value.content = qrCodeEditorData.value.content
+    selectedElement.value.width = qrCodeEditorData.value.size
+    selectedElement.value.height = qrCodeEditorData.value.size
+    selectedElement.value.foregroundColor = qrCodeEditorData.value.foregroundColor
+    selectedElement.value.backgroundColor = qrCodeEditorData.value.backgroundColor
+    selectedElement.value.borderStyle = qrCodeEditorData.value.borderStyle
+    selectedElement.value.borderColor = qrCodeEditorData.value.borderColor
+    selectedElement.value.borderWidth = qrCodeEditorData.value.borderWidth
+    selectedElement.value.qrDataUrl = generateQRCodeDataUrl(
+      selectedElement.value.content, 
+      selectedElement.value.width,
+      selectedElement.value.foregroundColor,
+      selectedElement.value.backgroundColor,
+      selectedElement.value.borderStyle,
+      selectedElement.value.borderColor,
+      selectedElement.value.borderWidth
+    )
+    selectedElement.value.qrKey = Date.now()
+  }
+}
+
+const generateQRCode = () => {
+  updateQRCodeElement()
+}
+
+const generateQRCodeDataUrl = (content, size, foregroundColor = '#000000', backgroundColor = '#ffffff', borderStyle = 'none', borderColor = '#333333', borderWidth = 0) => {
+  if (!content || !size) {
+    return generatePlaceholderQRCode(size, foregroundColor, backgroundColor, borderStyle, borderColor, borderWidth)
+  }
+  
+  const borderOffset = borderWidth > 0 ? borderWidth : 0
+  const qrSize = size
+  const canvas = document.createElement('canvas')
+  canvas.width = qrSize + borderOffset * 2
+  canvas.height = qrSize + borderOffset * 2
+  
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = backgroundColor
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  
+  try {
+    const qrCanvas = document.createElement('canvas')
+    QRCode.toCanvas(qrCanvas, content, {
+      width: qrSize,
+      color: {
+        dark: foregroundColor,
+        light: backgroundColor
+      },
+      margin: 1
+    })
+    
+    ctx.drawImage(qrCanvas, borderOffset, borderOffset, qrSize, qrSize)
+    
+    if (borderStyle !== 'none' && borderWidth > 0) {
+      ctx.strokeStyle = borderColor
+      ctx.lineWidth = borderWidth
+      ctx.setLineDash(borderStyle === 'dashed' ? [4, 4] : borderStyle === 'dotted' ? [2, 2] : [])
+      ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth)
+      ctx.setLineDash([])
+    }
+    
+    return canvas.toDataURL('image/png')
+  } catch (error) {
+    console.error('QRCode generation error:', error)
+    return generatePlaceholderQRCode(size, foregroundColor, backgroundColor, borderStyle, borderColor, borderWidth)
+  }
+}
+
+const generatePlaceholderQRCode = (size, foregroundColor = '#000000', backgroundColor = '#ffffff', borderStyle = 'none', borderColor = '#333333', borderWidth = 0) => {
+  const canvas = document.createElement('canvas')
+  const borderOffset = borderWidth > 0 ? borderWidth : 0
+  canvas.width = size + borderOffset * 2
+  canvas.height = size + borderOffset * 2
+  const ctx = canvas.getContext('2d')
+  
+  ctx.fillStyle = backgroundColor
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  
+  const blockSize = Math.max(4, Math.floor(size / 20))
+  const padding = blockSize
+  
+  ctx.fillStyle = foregroundColor
+  
+  const drawCorner = (x, y) => {
+    ctx.fillRect(x + borderOffset, y + borderOffset, blockSize * 3, blockSize * 3)
+    ctx.fillStyle = backgroundColor
+    ctx.fillRect(x + borderOffset + blockSize, y + borderOffset + blockSize, blockSize, blockSize)
+    ctx.fillStyle = foregroundColor
+  }
+  
+  drawCorner(padding, padding)
+  drawCorner(size - padding - blockSize * 3, padding)
+  drawCorner(padding, size - padding - blockSize * 3)
+  
+  ctx.fillStyle = foregroundColor
+  ctx.globalAlpha = 0.5
+  const patternSize = blockSize
+  for (let i = 0; i < Math.floor((size - padding * 4) / patternSize); i++) {
+    for (let j = 0; j < Math.floor((size - padding * 4) / patternSize); j++) {
+      const x = padding * 2 + j * patternSize + borderOffset
+      const y = padding * 2 + i * patternSize + borderOffset
+      if (Math.random() > 0.5) {
+        ctx.fillRect(x, y, patternSize - 1, patternSize - 1)
+      }
+    }
+  }
+  ctx.globalAlpha = 1.0
+  
+  if (borderStyle !== 'none' && borderWidth > 0) {
+    ctx.strokeStyle = borderColor
+    ctx.lineWidth = borderWidth
+    ctx.setLineDash(borderStyle === 'dashed' ? [4, 4] : borderStyle === 'dotted' ? [2, 2] : [])
+    ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth)
+    ctx.setLineDash([])
+  }
+  
+  return canvas.toDataURL('image/png')
+}
+
 const updateShapeWidth = (event, element) => {
   let value = parseInt(event.target.value) || 1
   value = Math.max(1, Math.min(9999, value))
@@ -2622,6 +2924,16 @@ const selectElement = (element) => {
       fontSize: element.fontSize || 14,
       fontColor: element.fontColor || '#333333',
       cells: element.cells
+    }
+  } else if (element.type === 'qrcode') {
+    qrCodeEditorData.value = {
+      content: element.content || '',
+      size: Math.min(element.width, element.height),
+      foregroundColor: element.foregroundColor || '#000000',
+      backgroundColor: element.backgroundColor || '#ffffff',
+      borderStyle: element.borderStyle || 'none',
+      borderColor: element.borderColor || '#333333',
+      borderWidth: element.borderWidth || 0
     }
   } else {
     textEditorData.value = {
@@ -3128,6 +3440,13 @@ const exportImage = async () => {
           const displayHeight = element.height * (element.scale / 100) * scale
           ctx.drawImage(iconCanvas, element.x * scale, element.y * scale, displayWidth, displayHeight)
         }
+      } else if (element.type === 'qrcode') {
+        const qrCanvas = exportQRCodeToCanvas(element, scale)
+        if (qrCanvas) {
+          const displayWidth = element.width * (element.scale / 100) * scale
+          const displayHeight = element.height * (element.scale / 100) * scale
+          ctx.drawImage(qrCanvas, element.x * scale, element.y * scale, displayWidth, displayHeight)
+        }
       } else if (element.type === 'sticker') {
         ctx.save()
         const displayWidth = element.width * (element.scale / 100) * scale
@@ -3318,6 +3637,57 @@ const exportIconToCanvas = async (element, scale) => {
   render(null, tempDiv)
   
   return iconCanvas
+}
+
+const exportQRCodeToCanvas = (element, scale) => {
+  const qrSize = Math.min(element.width, element.height) * (element.scale / 100) * scale
+  const borderWidth = (element.borderWidth || 0) * scale
+  
+  const canvas = document.createElement('canvas')
+  const totalSize = qrSize + borderWidth * 2
+  canvas.width = totalSize
+  canvas.height = totalSize
+  
+  const foregroundColor = element.foregroundColor || '#000000'
+  const backgroundColor = element.backgroundColor || '#ffffff'
+  const borderStyle = element.borderStyle || 'none'
+  const borderColor = element.borderColor || '#333333'
+  
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = backgroundColor
+  ctx.fillRect(0, 0, totalSize, totalSize)
+  
+  if (!element.content) {
+    return canvas
+  }
+  
+  try {
+    const qrCanvas = document.createElement('canvas')
+    QRCode.toCanvas(qrCanvas, element.content, {
+      width: qrSize,
+      color: {
+        dark: foregroundColor,
+        light: backgroundColor
+      },
+      margin: 1
+    })
+    
+    ctx.drawImage(qrCanvas, borderWidth, borderWidth, qrSize, qrSize)
+    
+    if (borderStyle !== 'none' && borderWidth > 0) {
+      ctx.strokeStyle = borderColor
+      ctx.lineWidth = borderWidth
+      ctx.setLineDash(borderStyle === 'dashed' ? [4 * scale, 4 * scale] : borderStyle === 'dotted' ? [2 * scale, 2 * scale] : [])
+      ctx.strokeRect(borderWidth / 2, borderWidth / 2, totalSize - borderWidth, totalSize - borderWidth)
+      ctx.setLineDash([])
+    }
+  } catch (error) {
+    console.error('Export QRCode error:', error)
+    ctx.fillStyle = backgroundColor
+    ctx.fillRect(0, 0, totalSize, totalSize)
+  }
+  
+  return canvas
 }
 
 const exportShapeToCanvas = async (element, scale) => {
