@@ -29,61 +29,63 @@
               <Triangle class="w-5 h-5" />
               <span>形状</span>
             </button>
-            <div v-if="showShapeMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
+            <div v-if="showShapeMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-4 gap-1 min-w-[200px]">
               <div class="absolute -top-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-gray-300"></div>
               <div class="absolute -top-[8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-white"></div>
             <button
               @click="addShape('rectangle'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Square class="w-4 h-4" />
               <span>矩形</span>
             </button>
             <button
               @click="addShape('circle'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Circle class="w-4 h-4" />
               <span>圆形</span>
             </button>
             <button
               @click="addShape('ellipse'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
-              <Circle class="w-4 h-4" />
-              <span>椭圆</span>
+              <span class="w-5 h-4 flex items-center justify-center">
+                <svg viewBox="0 0 24 14" class="w-full h-auto" style="max-height: 16px;"><ellipse cx="12" cy="7" rx="11" ry="6" fill="currentColor"/></svg>
+              </span>
+              <span class="whitespace-nowrap">椭圆</span>
             </button>
             <button
               @click="addShape('triangle'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Triangle class="w-4 h-4" />
-              <span>三角形</span>
+              <span class="whitespace-nowrap">三角形</span>
             </button>
             <button
               @click="addShape('diamond'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
-              <Hexagon class="w-4 h-4" />
+              <span class="w-4 h-4 flex items-center justify-center text-lg">◆</span>
               <span>菱形</span>
             </button>
             <button
               @click="addShape('star'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Star class="w-4 h-4" />
               <span>星形</span>
             </button>
             <button
               @click="addShape('heart'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <Heart class="w-4 h-4" />
               <span>心形</span>
             </button>
             <button
               @click="addShape('arrow'); showShapeMenu = false"
-              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
+              class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
             >
               <ArrowRight class="w-4 h-4" />
               <span>箭头</span>
@@ -772,31 +774,46 @@
                 />
               </div>
             </div>
-            <div v-if="selectedElement?.shapeType === 'rectangle'" class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-sm text-gray-600 mb-1">圆角</label>
-                <input
-                  type="number"
-                  :value="selectedElement?.borderRadius || 0"
-                  @input="updateShapeBorderRadius($event, selectedElement)"
-                  class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                  min="0"
-                  max="100"
-                />
+            <div v-if="selectedElement?.shapeType === 'rectangle'" class="space-y-2">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">圆角</label>
+                  <input
+                    type="number"
+                    :value="selectedElement?.borderRadius || 0"
+                    @input="updateShapeBorderRadius($event, selectedElement)"
+                    class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                    min="0"
+                    max="100"
+                  />
+                </div>
               </div>
-              <div>
-                <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
-                <input
-                  type="range"
-                  v-model.number="shapeEditorData.blur"
-                  min="0"
-                  max="50"
-                  class="w-full"
-                  @input="updateShapeElement"
-                />
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">透明度: {{ shapeEditorData.opacity }}%</label>
+                  <input
+                    type="range"
+                    v-model.number="shapeEditorData.opacity"
+                    min="0"
+                    max="100"
+                    class="w-full"
+                    @input="updateShapeElement"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                  <input
+                    type="range"
+                    v-model.number="shapeEditorData.blur"
+                    min="0"
+                    max="50"
+                    class="w-full"
+                    @input="updateShapeElement"
+                  />
+                </div>
               </div>
             </div>
-            <div v-else-if="selectedElement?.shapeType === 'circle'" class="grid grid-cols-2 gap-2">
+            <div v-else-if="selectedElement?.shapeType === 'circle'" class="space-y-2">
               <div>
                 <label class="block text-sm text-gray-600 mb-1">半径</label>
                 <input
@@ -808,20 +825,43 @@
                   max="4999"
                 />
               </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">透明度: {{ shapeEditorData.opacity }}%</label>
+                  <input
+                    type="range"
+                    v-model.number="shapeEditorData.opacity"
+                    min="0"
+                    max="100"
+                    class="w-full"
+                    @input="updateShapeElement"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                  <input
+                    type="range"
+                    v-model.number="shapeEditorData.blur"
+                    min="0"
+                    max="50"
+                    class="w-full"
+                    @input="updateShapeElement"
+                  />
+                </div>
+              </div>
+            </div>
+            <div v-else class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
+                <label class="block text-sm text-gray-600 mb-1">透明度: {{ shapeEditorData.opacity }}%</label>
                 <input
                   type="range"
-                  v-model.number="shapeEditorData.blur"
+                  v-model.number="shapeEditorData.opacity"
                   min="0"
-                  max="50"
+                  max="100"
                   class="w-full"
                   @input="updateShapeElement"
                 />
               </div>
-            </div>
-            <div v-else class="grid grid-cols-2 gap-2">
-              <div></div>
               <div>
                 <label class="block text-sm text-gray-600 mb-1">羽化: {{ shapeEditorData.blur }}px</label>
                 <input
@@ -1427,6 +1467,7 @@ const toggleMenu = (menuName) => {
 
 const shapeEditorData = ref({
   color: '#3b82f6',
+  opacity: 100,
   blur: 0
 })
 
@@ -2121,6 +2162,7 @@ const addShape = (shapeType) => {
     height,
     scale: 100,
     color: shapeEditorData.value.color,
+    opacity: shapeEditorData.value.opacity,
     blur: 0,
     zIndex: elements.value.length + 1
   }
@@ -2256,9 +2298,11 @@ const updateShapeBorderRadius = (event, element) => {
 const getBasicShapeStyle = (element) => {
   const displayWidth = element.width * (element.scale / 100)
   const displayHeight = element.height * (element.scale / 100)
+  const opacity = (element.opacity || 100) / 100
   
   const style = {
     backgroundColor: element.color,
+    opacity: opacity,
     width: `${displayWidth}px`,
     height: `${displayHeight}px`
   }
@@ -2282,6 +2326,8 @@ const getBasicShapeStyle = (element) => {
 
 const getShapeOuterStyle = (element) => {
   const style = {}
+  const opacity = (element.opacity || 100) / 100
+  style.opacity = opacity
   if (element.blur && element.blur > 0) {
     const blur = element.blur
     style.filter = `blur(${blur}px)`
@@ -2298,8 +2344,10 @@ const getShapeOuterStyle = (element) => {
 }
 
 const getShapeInnerStyle = (element) => {
+  const opacity = (element.opacity || 100) / 100
   const style = {
     backgroundColor: element.color,
+    opacity: opacity,
     width: `${element.width}px`,
     height: `${element.height}px`
   }
@@ -2337,6 +2385,7 @@ const updateShapeElement = () => {
   if (selectedElement.value && selectedElement.value.type === 'shape') {
     saveHistory(selectedElement.value)
     selectedElement.value.color = shapeEditorData.value.color
+    selectedElement.value.opacity = shapeEditorData.value.opacity
     selectedElement.value.blur = shapeEditorData.value.blur
   }
 }
@@ -2549,6 +2598,7 @@ const selectElement = (element) => {
   } else if (element.type === 'shape') {
     shapeEditorData.value = {
       color: element.color,
+      opacity: element.opacity || 100,
       blur: element.blur || 0
     }
   } else if (element.type === 'border') {
@@ -3007,6 +3057,8 @@ const exportImage = async () => {
         
         const displayWidth = element.width * (element.scale / 100) * scale
         const displayHeight = element.height * (element.scale / 100) * scale
+        const opacity = (element.opacity || 100) / 100
+        ctx.globalAlpha = opacity
         
         const blur = (element.blur || 0) * scale
         if (blur > 0) {
