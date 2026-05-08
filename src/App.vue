@@ -29,7 +29,9 @@
               <Triangle class="w-5 h-5" />
               <span>形状</span>
             </button>
-            <div v-if="showShapeMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
+            <div v-if="showShapeMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-2 gap-1 min-w-[160px]">
+              <div class="absolute -top-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-gray-300"></div>
+              <div class="absolute -top-[8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-white"></div>
             <button
               @click="addShape('rectangle'); showShapeMenu = false"
               class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-sm"
@@ -96,13 +98,15 @@
               <Star class="w-5 h-5" />
               <span>图标</span>
             </button>
-            <div v-if="showIconMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-4 gap-1 min-w-[200px]">
+            <div v-if="showIconMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-10 gap-1 min-w-[500px]">
+                <div class="absolute -top-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-gray-300"></div>
+              <div class="absolute -top-[8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-white"></div>
               <button v-for="icon in iconList" :key="icon.name"
                 @click="addIcon(icon.name); showIconMenu = false"
-                class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs"
+                class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
               >
                 <component :is="icon.component" class="w-5 h-5" />
-                <span>{{ icon.label }}</span>
+                <span class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[40px]">{{ icon.label }}</span>
               </button>
             </div>
           </div>
@@ -114,13 +118,15 @@
               <Heart class="w-5 h-5" />
               <span>贴纸</span>
             </button>
-            <div v-if="showStickerMenu" class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-4 gap-1 min-w-[200px]">
+            <div v-if="showStickerMenu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 grid grid-cols-10 gap-1 min-w-[500px]">
+                <div class="absolute -top-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-gray-300"></div>
+              <div class="absolute -top-[8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-white"></div>
               <button v-for="sticker in stickerList" :key="sticker.name"
                 @click="addSticker(sticker); showStickerMenu = false"
-                class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs"
+                class="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-xs min-w-[48px]"
               >
                 <span class="text-2xl">{{ sticker.emoji }}</span>
-                <span>{{ sticker.label }}</span>
+                <span class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[40px]">{{ sticker.label }}</span>
               </button>
             </div>
           </div>
@@ -855,6 +861,52 @@
               >删除</button>
             </div>
           </div>
+
+          <div v-else-if="selectedElement.type === 'icon'" class="space-y-4">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">图标颜色</label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="color"
+                  v-model="iconEditorData.color"
+                  @input="updateIconElement"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 flex-shrink-0"
+                />
+                <input
+                  type="text"
+                  v-model="iconEditorData.color"
+                  @input="updateIconElement"
+                  class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button
+                @click="undo"
+                :disabled="historyIndex <= 0"
+                :class="[
+                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                ]"
+              >后退</button>
+              <button
+                @click="redo"
+                :disabled="historyIndex >= history.length - 1"
+                :class="[
+                  'flex-1 px-3 py-2 border rounded-lg text-sm',
+                  historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                ]"
+              >前进</button>
+              <button
+                @click="duplicateElement"
+                class="flex-1 px-3 py-2 border rounded-lg hover:bg-gray-50 text-sm"
+              >复制</button>
+              <button
+                @click="deleteElement(selectedElement)"
+                class="flex-1 px-3 py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm"
+              >删除</button>
+            </div>
+          </div>
         </div>
 
         <div v-if="!selectedElement" class="bg-white rounded-lg border border-gray-200 p-3">
@@ -1222,7 +1274,13 @@ import {
   ChevronUp, ChevronDown, Trash2, Palette, X,
   AlignLeft, AlignCenter, AlignRight, Bold, Italic,
   Edit3, Copy, Image as ImageIcon, Upload, Square, Circle, Settings,
-  Triangle, Star, Heart, ArrowRight, Hexagon, MoreHorizontal
+  Triangle, Star, Heart, ArrowRight, Hexagon, MoreHorizontal,
+  Home, Mail, Phone, MapPin, Clock, Calendar, Camera, Music,
+  Video, Book, FileText, Folder, Link, ExternalLink, Check,
+  XCircle, AlertCircle, Info, HelpCircle, Lightbulb, Zap,
+  Gift, Award, Send, Share2, Bookmark, Tag, Users, User,
+  Bell, Sun, Moon, Cloud, CloudRain, Snowflake, Wind,
+  Wifi, Battery, Volume2, VolumeX, Printer, TrendingUp
 } from 'lucide-vue-next'
 import html2canvas from 'html2canvas'
 
@@ -1372,6 +1430,10 @@ const shapeEditorData = ref({
   blur: 0
 })
 
+const iconEditorData = ref({
+  color: '#333333'
+})
+
 const defaultSettings = ref({
   imageBorderRadius: 0,
   textFontSize: 24,
@@ -1386,30 +1448,112 @@ const iconList = [
   { name: 'square', label: '方形', component: Square },
   { name: 'hexagon', label: '六角', component: Hexagon },
   { name: 'arrow', label: '箭头', component: ArrowRight },
+  { name: 'check', label: '勾选', component: Check },
+  { name: 'x', label: '关闭', component: XCircle },
   { name: 'download', label: '下载', component: Download },
   { name: 'upload', label: '上传', component: Upload },
   { name: 'edit', label: '编辑', component: Edit3 },
   { name: 'copy', label: '复制', component: Copy },
-  { name: 'settings', label: '设置', component: Settings }
+  { name: 'file', label: '文件', component: FileText },
+  { name: 'folder', label: '文件夹', component: Folder },
+  { name: 'settings', label: '设置', component: Settings },
+  { name: 'printer', label: '打印', component: Printer },
+  { name: 'home', label: '首页', component: Home },
+  { name: 'mail', label: '邮件', component: Mail },
+  { name: 'phone', label: '电话', component: Phone },
+  { name: 'map', label: '地图', component: MapPin },
+  { name: 'send', label: '发送', component: Send },
+  { name: 'share', label: '分享', component: Share2 },
+  { name: 'link', label: '链接', component: Link },
+  { name: 'external', label: '外链', component: ExternalLink },
+  { name: 'clock', label: '时钟', component: Clock },
+  { name: 'calendar', label: '日历', component: Calendar },
+  { name: 'camera', label: '相机', component: Camera },
+  { name: 'music', label: '音乐', component: Music },
+  { name: 'video', label: '视频', component: Video },
+  { name: 'book', label: '书籍', component: Book },
+  { name: 'alert', label: '警告', component: AlertCircle },
+  { name: 'info', label: '信息', component: Info },
+  { name: 'help', label: '帮助', component: HelpCircle },
+  { name: 'bell', label: '通知', component: Bell },
+  { name: 'lightbulb', label: '灯泡', component: Lightbulb },
+  { name: 'zap', label: '闪电', component: Zap },
+  { name: 'gift', label: '礼物', component: Gift },
+  { name: 'award', label: '奖章', component: Award },
+  { name: 'users', label: '用户', component: Users },
+  { name: 'user', label: '个人', component: User },
+  { name: 'bookmark', label: '书签', component: Bookmark },
+  { name: 'tag', label: '标签', component: Tag },
+  { name: 'sun', label: '太阳', component: Sun },
+  { name: 'moon', label: '月亮', component: Moon },
+  { name: 'cloud', label: '云朵', component: Cloud },
+  { name: 'rain', label: '下雨', component: CloudRain },
+  { name: 'snow', label: '雪花', component: Snowflake },
+  { name: 'wind', label: '风', component: Wind },
+  { name: 'wifi', label: 'WiFi', component: Wifi },
+  { name: 'battery', label: '电池', component: Battery },
+  { name: 'volume', label: '声音', component: Volume2 },
+  { name: 'mute', label: '静音', component: VolumeX },
+  { name: 'trending', label: '趋势', component: TrendingUp },
+  { name: 'layout', label: '布局', component: LayoutGrid },
+  { name: 'image', label: '图片', component: ImagePlus },
+  { name: 'text', label: '文字', component: Type },
+  { name: 'layer', label: '图层', component: Layers },
+  { name: 'up', label: '向上', component: ChevronUp },
+  { name: 'down', label: '向下', component: ChevronDown }
 ]
 
 const stickerList = [
   { name: 'happy', label: '开心', emoji: '😊' },
+  { name: 'smile', label: '微笑', emoji: '🙂' },
+  { name: 'grin', label: '露齿笑', emoji: '😀' },
+  { name: 'laugh', label: '大笑', emoji: '😂' },
+  { name: 'joy', label: '笑哭', emoji: '😂' },
+  { name: 'cool', label: '酷', emoji: '😎' },
+  { name: 'sunglasses', label: '墨镜', emoji: '😎' },
+  { name: 'heart_eyes', label: '花痴', emoji: '😍' },
+  { name: 'blush', label: '害羞', emoji: '😳' },
+  { name: 'kiss', label: '飞吻', emoji: '😘' },
+  { name: 'wink', label: '眨眼', emoji: '😉' },
+  { name: 'sad', label: '难过', emoji: '😢' },
+  { name: 'cry', label: '哭泣', emoji: '😭' },
+  { name: 'tired', label: '疲惫', emoji: '😫' },
+  { name: 'sleepy', label: '困倦', emoji: '😴' },
+  { name: 'angry', label: '生气', emoji: '😠' },
+  { name: 'surprised', label: '惊讶', emoji: '😮' },
+  { name: 'thinking', label: '思考', emoji: '🤔' },
   { name: 'love', label: '爱心', emoji: '❤️' },
+  { name: 'heart', label: '红心', emoji: '💖' },
+  { name: 'sparkling_heart', label: '闪亮心', emoji: '💖' },
+  { name: 'cupid', label: '丘比特', emoji: '💘' },
+  { name: 'two_hearts', label: '双心', emoji: '💕' },
+  { name: 'heart_hands', label: '比心', emoji: '🤍' },
+  { name: 'broken_heart', label: '心碎', emoji: '💔' },
+  { name: 'thumbsup', label: '点赞', emoji: '👍' },
+  { name: 'thumbsdown', label: '差评', emoji: '👎' },
+  { name: 'clap', label: '鼓掌', emoji: '👏' },
+  { name: 'wave', label: '挥手', emoji: '👋' },
+  { name: 'ok', label: 'OK', emoji: '👌' },
+  { name: 'fist', label: '拳头', emoji: '✊' },
   { name: 'star', label: '星星', emoji: '⭐' },
   { name: 'fire', label: '火焰', emoji: '🔥' },
   { name: 'sparkle', label: '闪光', emoji: '✨' },
-  { name: 'thumbsup', label: '点赞', emoji: '👍' },
-  { name: 'heart_eyes', label: '花痴', emoji: '😍' },
-  { name: 'laugh', label: '大笑', emoji: '😂' },
-  { name: 'cool', label: '酷', emoji: '😎' },
-  { name: 'sad', label: '难过', emoji: '😢' },
-  { name: 'angry', label: '生气', emoji: '😠' },
-  { name: 'surprised', label: '惊讶', emoji: '😮' },
+  { name: 'sun', label: '太阳', emoji: '☀️' },
+  { name: 'cloud', label: '云朵', emoji: '☁️' },
+  { name: 'rainbow', label: '彩虹', emoji: '🌈' },
+  { name: 'umbrella', label: '雨伞', emoji: '☔' },
+  { name: 'snowflake', label: '雪花', emoji: '❄️' },
+  { name: 'zap', label: '闪电', emoji: '⚡' },
   { name: 'celebrate', label: '庆祝', emoji: '🎉' },
   { name: 'confetti', label: '彩带', emoji: '🎊' },
+  { name: 'party', label: '派对', emoji: '🥳' },
   { name: 'cake', label: '蛋糕', emoji: '🎂' },
-  { name: 'party', label: '派对', emoji: '🥳' }
+  { name: 'gift', label: '礼物', emoji: '🎁' },
+  { name: 'balloon', label: '气球', emoji: '🎈' },
+  { name: 'flower', label: '花朵', emoji: '🌸' },
+  { name: 'trophy', label: '奖杯', emoji: '🏆' },
+  { name: 'medal', label: '奖牌', emoji: '🥇' },
+  { name: 'rocket', label: '火箭', emoji: '🚀' }
 ]
 
 const borderList = [
@@ -2194,6 +2338,13 @@ const updateShapeElement = () => {
     saveHistory(selectedElement.value)
     selectedElement.value.color = shapeEditorData.value.color
     selectedElement.value.blur = shapeEditorData.value.blur
+  }
+}
+
+const updateIconElement = () => {
+  if (selectedElement.value && selectedElement.value.type === 'icon') {
+    saveHistory(selectedElement.value)
+    selectedElement.value.color = iconEditorData.value.color
   }
 }
 
