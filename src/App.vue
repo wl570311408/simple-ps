@@ -1487,7 +1487,7 @@
       @change="handleFileChange"
     />
 
-    <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white py-2 text-center text-sm">
+    <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white py-2 text-sm flex items-center justify-center relative">
       <span>作者：吴亮</span>
       <span class="mx-2">|</span>
       <span>邮箱：570311408@qq.com</span>
@@ -1495,6 +1495,20 @@
       <span>版本：1.0.0</span>
       <span class="mx-2">|</span>
       <span>© 2026 版权所有</span>
+      
+      <button 
+        @click="showBuildTime = !showBuildTime"
+        class="absolute right-2 w-6 h-6 bg-transparent border-none rounded flex items-center justify-center opacity-[0.01]"
+        title="显示/隐藏版本发布时间"
+      >
+        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </button>
+      
+      <div v-if="showBuildTime" class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">
+        {{ buildTime }}
+      </div>
     </footer>
 
   </div>
@@ -1653,6 +1667,9 @@ const showShapeMenu = ref(false)
 const showIconMenu = ref(false)
 const showStickerMenu = ref(false)
 const showOtherMenu = ref(false)
+
+const showBuildTime = ref(false)
+const buildTime = ref(__BUILD_TIME__)
 
 const toggleMenu = (menuName) => {
   showShapeMenu.value = menuName === 'shape' ? !showShapeMenu.value : false
