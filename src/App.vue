@@ -1286,8 +1286,8 @@
         </div>
       </aside>
 
-      <main class="flex-1 p-6 overflow-hidden">
-        <div class="canvas-container flex items-center justify-center h-[calc(100vh-160px)] overflow-auto">
+      <main class="flex-1 p-6 overflow-hidden pb-12">
+        <div class="canvas-container flex items-center justify-center h-[calc(100vh-200px)] overflow-auto">
           <div
             class="canvas-wrapper"
             :style="{ transform: `scale(${canvasScale / 100})`, transformOrigin: 'center center' }"
@@ -1486,6 +1486,16 @@
       class="hidden"
       @change="handleFileChange"
     />
+
+    <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white py-2 text-center text-sm">
+      <span>作者：吴亮</span>
+      <span class="mx-2">|</span>
+      <span>邮箱：570311408@qq.com</span>
+      <span class="mx-2">|</span>
+      <span>版本：1.0.0</span>
+      <span class="mx-2">|</span>
+      <span>© 2026 版权所有</span>
+    </footer>
 
   </div>
 </template>
