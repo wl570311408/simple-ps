@@ -388,6 +388,24 @@
                 class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm whitespace-nowrap"
               >{{ t('common.reset') }}</button>
             </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-2">{{ t('image.gradient') }}</label>
+              <select
+                v-model="imageEditorData.gradientDirection"
+                @change="updateImageElement"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              >
+                <option value="none">{{ t('image.gradientNone') }}</option>
+                <option value="top-bottom">{{ t('image.gradientTopBottom') }}</option>
+                <option value="bottom-top">{{ t('image.gradientBottomTop') }}</option>
+                <option value="left-right">{{ t('image.gradientLeftRight') }}</option>
+                <option value="right-left">{{ t('image.gradientRightLeft') }}</option>
+                <option value="topLeft-bottomRight">{{ t('image.gradientTopLeftBottomRight') }}</option>
+                <option value="topRight-bottomLeft">{{ t('image.gradientTopRightBottomLeft') }}</option>
+                <option value="bottomLeft-topRight">{{ t('image.gradientBottomLeftTopRight') }}</option>
+                <option value="bottomRight-topLeft">{{ t('image.gradientBottomRightTopLeft') }}</option>
+              </select>
+            </div>
             <div class="flex gap-1.5 pt-2">
               <button
                 @click="undo"
@@ -1311,19 +1329,21 @@
               @mousedown="startDrag($event, element)"
               @click.stop="selectElement(element)"
             >
-              <div v-if="element.type === 'image'" class="w-full h-full relative overflow-hidden" :style="{ borderRadius: element.borderRadius + 'px', clipPath: getClipPath(element) }">
+              <div v-if="element.type === 'image'" class="w-full h-full relative overflow-hidden" :style="{ borderRadius: element.borderRadius + 'px' }">
                 <img
                   v-if="selectedElement?.id === element.id && hasCrop(element)"
                   :src="element.src"
-                  class="absolute inset-0 w-full h-full object-cover opacity-40"
+                  class="absolute inset-0 w-full h-full object-cover opacity-15 reference-base"
                   draggable="false"
                 />
-                <img
-                  :src="element.src"
-                  class="w-full h-full"
-                  draggable="false"
-                  :style="{ objectFit: 'fill' }"
-                />
+                <div class="absolute inset-0 overflow-hidden" :style="{ clipPath: getClipPath(element) }">
+                  <img
+                    :src="element.src"
+                    class="w-full h-full"
+                    draggable="false"
+                    :style="{ objectFit: 'fill', ...getGradientStyle(element) }"
+                  />
+                </div>
                 <div
                   v-if="selectedElement?.id === element.id && hasCrop(element)"
                   class="absolute inset-0 pointer-events-none"
@@ -1337,10 +1357,11 @@
               </div>
               <div
                 v-else-if="element.type === 'text'"
-                class="w-full h-full flex items-center justify-center"
-                :style="getTextStyle(element)"
+                class="w-full h-full flex items-center"
               >
-                {{ element.text }}
+                <span class="w-full" :style="getTextStyle(element)">
+                  {{ element.text }}
+                </span>
               </div>
               <div
                 v-else-if="element.type === 'shape' && (element.shapeType === 'rectangle' || element.shapeType === 'circle' || element.shapeType === 'ellipse')"
@@ -1830,7 +1851,8 @@ const imageEditorData = ref({
   cropTop: 0,
   cropBottom: 0,
   cropLeft: 0,
-  cropRight: 0
+  cropRight: 0,
+  gradientDirection: 'none'
 })
 
 const tableEditorData = ref({
@@ -1925,7 +1947,8 @@ const updateImageElement = () => {
         el.cropTop !== imageEditorData.value.cropTop ||
         el.cropBottom !== imageEditorData.value.cropBottom ||
         el.cropLeft !== imageEditorData.value.cropLeft ||
-        el.cropRight !== imageEditorData.value.cropRight) {
+        el.cropRight !== imageEditorData.value.cropRight ||
+        el.gradientDirection !== imageEditorData.value.gradientDirection) {
       saveHistory(el)
       el.scale = imageEditorData.value.scale
       el.borderRadius = imageEditorData.value.borderRadius
@@ -1935,6 +1958,7 @@ const updateImageElement = () => {
       el.cropBottom = imageEditorData.value.cropBottom
       el.cropLeft = imageEditorData.value.cropLeft
       el.cropRight = imageEditorData.value.cropRight
+      el.gradientDirection = imageEditorData.value.gradientDirection
     }
   }
 }
@@ -2111,6 +2135,35 @@ const getElementStyle = (element) => {
 
 const hasCrop = (element) => {
   return element.cropTop > 0 || element.cropBottom > 0 || element.cropLeft > 0 || element.cropRight > 0
+}
+
+const getGradientStyle = (element) => {
+  const direction = element.gradientDirection || 'none'
+  if (direction === 'none') return {}
+  
+  const cropTop = element.cropTop || 0
+  const cropBottom = element.cropBottom || 0
+  const cropLeft = element.cropLeft || 0
+  const cropRight = element.cropRight || 0
+  
+  const gradientMap = {
+    'top-bottom': `linear-gradient(to bottom, rgba(0,0,0,1) ${cropTop}%, rgba(0,0,0,0) ${100 - cropBottom}%)`,
+    'bottom-top': `linear-gradient(to top, rgba(0,0,0,1) ${cropBottom}%, rgba(0,0,0,0) ${100 - cropTop}%)`,
+    'left-right': `linear-gradient(to right, rgba(0,0,0,1) ${cropLeft}%, rgba(0,0,0,0) ${100 - cropRight}%)`,
+    'right-left': `linear-gradient(to left, rgba(0,0,0,1) ${cropRight}%, rgba(0,0,0,0) ${100 - cropLeft}%)`,
+    'topLeft-bottomRight': `linear-gradient(to bottom right, rgba(0,0,0,1) ${Math.max(cropTop, cropLeft)}%, rgba(0,0,0,0) ${100 - Math.max(cropBottom, cropRight)}%)`,
+    'topRight-bottomLeft': `linear-gradient(to bottom left, rgba(0,0,0,1) ${Math.max(cropTop, cropRight)}%, rgba(0,0,0,0) ${100 - Math.max(cropBottom, cropLeft)}%)`,
+    'bottomLeft-topRight': `linear-gradient(to top right, rgba(0,0,0,1) ${Math.max(cropBottom, cropLeft)}%, rgba(0,0,0,0) ${100 - Math.max(cropTop, cropRight)}%)`,
+    'bottomRight-topLeft': `linear-gradient(to top left, rgba(0,0,0,1) ${Math.max(cropBottom, cropRight)}%, rgba(0,0,0,0) ${100 - Math.max(cropTop, cropLeft)}%)`
+  }
+  
+  const gradient = gradientMap[direction]
+  if (!gradient) return {}
+  
+  return {
+    WebkitMaskImage: gradient,
+    maskImage: gradient
+  }
 }
 
 const getClipPath = (element) => {
@@ -2915,7 +2968,8 @@ const getTextStyle = (element) => {
     color: element.color,
     textAlign: element.textAlign,
     fontWeight: element.bold ? 'bold' : 'normal',
-    fontStyle: element.italic ? 'italic' : 'normal'
+    fontStyle: element.italic ? 'italic' : 'normal',
+    whiteSpace: 'pre-wrap'
   }
 }
 
@@ -3014,7 +3068,8 @@ const selectElement = (element) => {
       cropTop: element.cropTop || 0,
       cropBottom: element.cropBottom || 0,
       cropLeft: element.cropLeft || 0,
-      cropRight: element.cropRight || 0
+      cropRight: element.cropRight || 0,
+      gradientDirection: element.gradientDirection || 'none'
     }
   } else if (element.type === 'shape') {
     shapeEditorData.value = {
@@ -3228,7 +3283,7 @@ const handleResize = (event) => {
         element.x = newX
         element.y = newY
       } else {
-        const newScale = Math.max(10, Math.min(300, (newDisplayWidth / element.width) * 100))
+        const newScale = Math.max(10, Math.min(1000, (newDisplayWidth / element.width) * 100))
         
         element.scale = newScale
         element.x = newX
@@ -3388,6 +3443,8 @@ const toggleLock = (element) => {
 const exportImage = async () => {
   if (!canvasRef.value) return
 
+  selectedElement.value = null
+
   try {
     const wrapper = canvasRef.value.parentElement
     const originalTransform = wrapper.style.transform
@@ -3398,7 +3455,7 @@ const exportImage = async () => {
     canvasRef.value.style.width = `${canvasWidth.value}px`
     canvasRef.value.style.height = `${canvasHeight.value}px`
 
-    const hideElements = document.querySelectorAll('.element-selected, .resize-handle, .crop-overlay')
+    const hideElements = document.querySelectorAll('.element-selected, .resize-handle, .crop-overlay, .reference-base')
     hideElements.forEach(el => el.style.display = 'none')
 
     const scale = 2
@@ -3406,6 +3463,7 @@ const exportImage = async () => {
     canvas.width = canvasWidth.value * scale
     canvas.height = canvasHeight.value * scale
     const ctx = canvas.getContext('2d')
+    ctx.globalAlpha = 1
     
     if (canvasBgType.value === 'color') {
       ctx.fillStyle = canvasBgColor.value
@@ -3468,7 +3526,48 @@ const exportImage = async () => {
         )
         ctx.clip()
         
-        ctx.drawImage(img, 0, 0, img.width, img.height, element.x * scale, element.y * scale, displayWidth, displayHeight)
+        const gradientDirection = element.gradientDirection || 'none'
+        if (gradientDirection !== 'none') {
+          const displayTop = element.y * scale + displayHeight * cropTop
+          const displayBottom = element.y * scale + displayHeight * (1 - cropBottom)
+          const displayLeft = element.x * scale + displayWidth * cropLeft
+          const displayRight = element.x * scale + displayWidth * (1 - cropRight)
+          
+          const tempCanvas = document.createElement('canvas')
+          tempCanvas.width = displayWidth
+          tempCanvas.height = displayHeight
+          const tempCtx = tempCanvas.getContext('2d')
+          
+          tempCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, displayWidth, displayHeight)
+          
+          const gradientMap = {
+            'top-bottom': () => tempCtx.createLinearGradient(displayLeft - element.x * scale, displayTop - element.y * scale, displayLeft - element.x * scale, displayBottom - element.y * scale),
+            'bottom-top': () => tempCtx.createLinearGradient(displayLeft - element.x * scale, displayBottom - element.y * scale, displayLeft - element.x * scale, displayTop - element.y * scale),
+            'left-right': () => tempCtx.createLinearGradient(displayLeft - element.x * scale, displayTop - element.y * scale, displayRight - element.x * scale, displayTop - element.y * scale),
+            'right-left': () => tempCtx.createLinearGradient(displayRight - element.x * scale, displayTop - element.y * scale, displayLeft - element.x * scale, displayTop - element.y * scale),
+            'topLeft-bottomRight': () => tempCtx.createLinearGradient(displayLeft - element.x * scale, displayTop - element.y * scale, displayRight - element.x * scale, displayBottom - element.y * scale),
+            'topRight-bottomLeft': () => tempCtx.createLinearGradient(displayRight - element.x * scale, displayTop - element.y * scale, displayLeft - element.x * scale, displayBottom - element.y * scale),
+            'bottomLeft-topRight': () => tempCtx.createLinearGradient(displayLeft - element.x * scale, displayBottom - element.y * scale, displayRight - element.x * scale, displayTop - element.y * scale),
+            'bottomRight-topLeft': () => tempCtx.createLinearGradient(displayRight - element.x * scale, displayBottom - element.y * scale, displayLeft - element.x * scale, displayTop - element.y * scale)
+          }
+          
+          const createGradient = gradientMap[gradientDirection]
+          if (createGradient) {
+            const gradient = createGradient()
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 0)')
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 1)')
+            
+            tempCtx.globalCompositeOperation = 'destination-out'
+            tempCtx.fillStyle = gradient
+            tempCtx.fillRect(displayLeft - element.x * scale, displayTop - element.y * scale, displayRight - displayLeft, displayBottom - displayTop)
+            tempCtx.globalCompositeOperation = 'source-over'
+          }
+          
+          ctx.drawImage(tempCanvas, element.x * scale, element.y * scale)
+        } else {
+          ctx.drawImage(img, 0, 0, img.width, img.height, element.x * scale, element.y * scale, displayWidth, displayHeight)
+        }
+        
         ctx.restore()
       } else if (element.type === 'text') {
         ctx.save()
@@ -3516,7 +3615,13 @@ const exportImage = async () => {
         const startY = element.y * scale + displayHeight / 2 - totalHeight / 2 + lineHeight / 2
         
         for (let i = 0; i < visibleLines.length; i++) {
-          ctx.fillText(visibleLines[i], element.x * scale + displayWidth / 2, startY + i * lineHeight)
+          let x = element.x * scale + displayWidth / 2
+          if (element.textAlign === 'left') {
+            x = element.x * scale + 4 * scale
+          } else if (element.textAlign === 'right') {
+            x = element.x * scale + displayWidth - 4 * scale
+          }
+          ctx.fillText(visibleLines[i], x, startY + i * lineHeight)
         }
         
         ctx.restore()

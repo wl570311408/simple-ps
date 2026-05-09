@@ -183,7 +183,17 @@ export default {
     borderBottom: '下方边框',
     borderLeft: '左方边框',
     borderRight: '右方边框',
-    borderRadius: '圆角'
+    borderRadius: '圆角',
+    gradient: '渐变透明',
+    gradientNone: '无',
+    gradientTopBottom: '从上到下',
+    gradientBottomTop: '从下到上',
+    gradientLeftRight: '从左到右',
+    gradientRightLeft: '从右到左',
+    gradientTopLeftBottomRight: '从左上到右下',
+    gradientTopRightBottomLeft: '从右上到左下',
+    gradientBottomLeftTopRight: '从左下到右上',
+    gradientBottomRightTopLeft: '从右下到左上'
   },
   border: {
     color: '边框颜色',
