@@ -711,7 +711,7 @@
                 type="range"
                 v-model.number="textEditorData.fontSize"
                 min="12"
-                max="72"
+                max="200"
                 class="w-full"
                 @input="updateTextElement"
               />
@@ -1218,6 +1218,16 @@
                 />
               </div>
             </div>
+            <div>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="showGuides"
+                  class="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                />
+                <span class="text-sm text-gray-600">{{ t('canvas.showGuides') }}</span>
+              </label>
+            </div>
             <div v-if="canvasBgType === 'image'">
               <label class="block text-sm text-gray-600 mb-1">{{ t('canvas.bgImage') }}</label>
               <div>
@@ -1311,11 +1321,19 @@
             :style="{ transform: `scale(${canvasScale / 100})`, transformOrigin: 'center center' }"
           >
             <div
-              ref="canvasRef"
-              :style="getCanvasStyle()"
-              class="relative shadow-lg overflow-hidden border border-gray-300"
-              @click="handleCanvasClick"
-            >
+            ref="canvasRef"
+            :style="getCanvasStyle()"
+            class="relative shadow-lg overflow-hidden border border-gray-300"
+            @click="handleCanvasClick"
+          >
+            <div v-if="showGuides" class="absolute inset-0 pointer-events-none z-10">
+              <div class="absolute top-0 left-0 right-0 h-px bg-blue-400 opacity-50"></div>
+              <div class="absolute bottom-0 left-0 right-0 h-px bg-blue-400 opacity-50"></div>
+              <div class="absolute top-0 bottom-0 left-0 w-px bg-blue-400 opacity-50"></div>
+              <div class="absolute top-0 bottom-0 right-0 w-px bg-blue-400 opacity-50"></div>
+              <div class="absolute left-0 right-0 h-px bg-red-400 opacity-50" :style="{ top: `${canvasHeight / 2}px` }"></div>
+              <div class="absolute top-0 bottom-0 w-px bg-red-400 opacity-50" :style="{ left: `${canvasWidth / 2}px` }"></div>
+            </div>
             <div
               v-for="element in sortedElements"
               v-show="element.visible !== false"
@@ -1680,6 +1698,8 @@ const canvasBgColor = ref('#ffffff')
 const canvasBgType = ref('color')
 const canvasBgImage = ref('')
 const canvasBgFillMode = ref('resize')
+const showGuides = ref(true)
+const snapThreshold = ref(10)
 const selectedPreset = ref('')
 const canvasScale = ref(100)
 const elements = ref([])
@@ -2965,6 +2985,7 @@ const getTextStyle = (element) => {
   return {
     fontFamily: element.fontFamily,
     fontSize: element.fontSize + 'px',
+    lineHeight: (element.fontSize * 1.2) + 'px',
     color: element.color,
     textAlign: element.textAlign,
     fontWeight: element.bold ? 'bold' : 'normal',
@@ -3158,8 +3179,8 @@ const handleDrag = (event) => {
     if (!element) return
 
     const scale = canvasScale.value / 100
-    const dx = (event.clientX - startX) / scale
-    const dy = (event.clientY - startY) / scale
+    let dx = (event.clientX - startX) / scale
+    let dy = (event.clientY - startY) / scale
 
     const displayWidth = element.width * (element.scale / 100)
     const displayHeight = element.height * (element.scale / 100)
@@ -3169,8 +3190,48 @@ const handleDrag = (event) => {
     const minY = -displayHeight + 1
     const maxY = canvasHeight.value - 1
 
-    element.x = Math.max(minX, Math.min(maxX, startLeft + dx))
-    element.y = Math.max(minY, Math.min(maxY, startTop + dy))
+    let newX = startLeft + dx
+    let newY = startTop + dy
+
+    if (showGuides.value) {
+      const canvasCenterX = canvasWidth.value / 2
+      const canvasCenterY = canvasHeight.value / 2
+      
+      const elementCenterX = newX + displayWidth / 2
+      const elementCenterY = newY + displayHeight / 2
+
+      const leftSnap = Math.abs(newX - 0)
+      const rightSnap = Math.abs(newX + displayWidth - canvasWidth.value)
+      const topSnap = Math.abs(newY - 0)
+      const bottomSnap = Math.abs(newY + displayHeight - canvasHeight.value)
+
+      const centerXSnap = Math.abs(elementCenterX - canvasCenterX)
+      const centerYSnap = Math.abs(elementCenterY - canvasCenterY)
+
+      const leftEdgeSnap = Math.abs(elementCenterX - 0)
+      const rightEdgeSnap = Math.abs(elementCenterX - canvasWidth.value)
+      const topEdgeSnap = Math.abs(elementCenterY - 0)
+      const bottomEdgeSnap = Math.abs(elementCenterY - canvasHeight.value)
+
+      const threshold = snapThreshold.value
+
+      if (leftSnap < threshold) newX = 0
+      else if (rightSnap < threshold) newX = canvasWidth.value - displayWidth
+      
+      if (topSnap < threshold) newY = 0
+      else if (bottomSnap < threshold) newY = canvasHeight.value - displayHeight
+
+      if (centerXSnap < threshold) newX = canvasCenterX - displayWidth / 2
+      if (centerYSnap < threshold) newY = canvasCenterY - displayHeight / 2
+
+      if (leftEdgeSnap < threshold) newX = -displayWidth / 2
+      if (rightEdgeSnap < threshold) newX = canvasWidth.value - displayWidth / 2
+      if (topEdgeSnap < threshold) newY = -displayHeight / 2
+      if (bottomEdgeSnap < threshold) newY = canvasHeight.value - displayHeight / 2
+    }
+
+    element.x = Math.max(minX, Math.min(maxX, newX))
+    element.y = Math.max(minY, Math.min(maxY, newY))
 
     rafId = null
   })

@@ -159,7 +159,8 @@ export default {
     cover: 'Cover',
     stretch: 'Stretch',
     actual: 'Actual Size',
-    poster: 'Poster (800 × 600px)'
+    poster: 'Poster (800 × 600px)',
+    showGuides: 'Show Guides'
   },
   defaults: {
     title: 'Defaults',
@@ -183,7 +184,17 @@ export default {
     borderBottom: 'Bottom Border',
     borderLeft: 'Left Border',
     borderRight: 'Right Border',
-    borderRadius: 'Border Radius'
+    borderRadius: 'Border Radius',
+    gradient: 'Gradient',
+    gradientNone: 'None',
+    gradientTopBottom: 'Top to Bottom',
+    gradientBottomTop: 'Bottom to Top',
+    gradientLeftRight: 'Left to Right',
+    gradientRightLeft: 'Right to Left',
+    gradientTopLeftBottomRight: 'Top-Left to Bottom-Right',
+    gradientTopRightBottomLeft: 'Top-Right to Bottom-Left',
+    gradientBottomLeftTopRight: 'Bottom-Left to Top-Right',
+    gradientBottomRightTopLeft: 'Bottom-Right to Top-Left'
   },
   border: {
     color: 'Border Color',

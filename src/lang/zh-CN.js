@@ -159,7 +159,8 @@ export default {
     cover: '等比例铺满',
     stretch: '拉伸铺满',
     actual: '实际尺寸',
-    poster: '海报 (800 × 600px)'
+    poster: '海报 (800 × 600px)',
+    showGuides: '显示辅助线'
   },
   defaults: {
     title: '默认设置',
