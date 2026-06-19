@@ -185,6 +185,37 @@
             </div>
           </div>
           <button
+            @click="saveSPSD"
+            :title="t('toolbar.saveProject')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            <span class="hidden md:inline text-sm">{{ t('toolbar.saveProject') }}</span>
+          </button>
+          <button
+            @click="loadSPSDClick"
+            :title="t('toolbar.loadProject')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="hidden md:inline text-sm">{{ t('toolbar.loadProject') }}</span>
+          </button>
+          <input
+            type="file"
+            accept=".spsd"
+            ref="spsdInputRef"
+            class="hidden"
+            @change="loadSPSD"
+          />
+          <button
             @click="exportImage"
             :title="t('toolbar.export')"
             class="flex items-center gap-1.5 px-3 py-1.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
@@ -210,6 +241,89 @@
 
     <div class="flex">
       <aside class="w-64 bg-gray-50 border-r border-gray-200 p-4 space-y-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-3">
+          <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <line x1="9" y1="3" x2="9" y2="21"/>
+              <line x1="15" y1="3" x2="15" y2="21"/>
+            </svg>
+            {{ t('page.management') }}
+          </h3>
+          <div class="flex items-center gap-2 mb-3">
+            <button
+              @click="prevPage"
+              :disabled="currentPageIndex <= 0"
+              :class="[
+                'w-10 px-2 py-1 border rounded-lg text-sm flex items-center justify-center gap-1 flex-shrink-0',
+                currentPageIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+              ]"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <button
+              @click="openPageEditModal"
+              class="flex-1 px-2 py-1 border rounded-lg text-xs hover:bg-gray-50 font-medium whitespace-nowrap"
+            >
+              {{ t('page.currentPage') }} {{ pages[currentPageIndex]?.pageNumber || 1 }}
+            </button>
+            <button
+              @click="nextPage"
+              :disabled="currentPageIndex >= pages.length - 1"
+              :class="[
+                'w-10 px-2 py-1 border rounded-lg text-sm flex items-center justify-center gap-1 flex-shrink-0',
+                currentPageIndex >= pages.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+              ]"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              @click="openDeleteConfirmModal"
+              :disabled="pages.length <= 1"
+              :class="[
+                'flex-1 px-2 py-1 border rounded-lg text-xs flex items-center justify-center gap-1 whitespace-nowrap',
+                pages.length <= 1 ? 'opacity-50 cursor-not-allowed' : 'border-red-300 text-red-500 hover:bg-red-50'
+              ]"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
+              </svg>
+              {{ t('page.delete') }}
+            </button>
+            <button
+              @click="openNewPageModal"
+              class="flex-1 px-2 py-1 border border-blue-300 text-blue-500 rounded-lg text-xs hover:bg-blue-50 flex items-center justify-center gap-1 whitespace-nowrap"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              {{ t('page.add') }}
+            </button>
+            <button
+              @click="saveCurrentPage"
+              class="flex-1 px-2 py-1 border border-green-300 text-green-600 rounded-lg text-xs hover:bg-green-50 flex items-center justify-center gap-1 whitespace-nowrap"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+              </svg>
+              {{ t('page.save') }}
+            </button>
+          </div>
+          <div v-if="pages[currentPageIndex]?.description" class="mt-3 text-xs text-gray-500 truncate" :title="pages[currentPageIndex].description">
+            {{ pages[currentPageIndex].description }}
+          </div>
+        </div>
+
         <div class="bg-white rounded-lg border border-gray-200 p-3">
           <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Layers class="w-5 h-5" />
@@ -1550,6 +1664,95 @@
       </div>
     </footer>
 
+    <div v-if="showPageEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-96 shadow-xl">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ t('page.editPage') }}</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">{{ t('page.pageNumber') }}</label>
+            <input
+              type="number"
+              v-model.number="pageEditorData.pageNumber"
+              min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">{{ t('page.description') }}</label>
+            <textarea
+              v-model="pageEditorData.description"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+              :placeholder="t('page.descriptionPlaceholder')"
+            ></textarea>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+          <button
+            @click="showPageEditModal = false"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          >{{ t('common.cancel') }}</button>
+          <button
+            @click="savePageEdit"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+          >{{ t('common.save') }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showNewPageModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-96 shadow-xl">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ t('page.addPage') }}</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">{{ t('page.pageNumber') }}</label>
+            <input
+              type="number"
+              v-model.number="newPageData.pageNumber"
+              min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">{{ t('page.description') }}</label>
+            <textarea
+              v-model="newPageData.description"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+              :placeholder="t('page.descriptionPlaceholder')"
+            ></textarea>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+          <button
+            @click="showNewPageModal = false"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          >{{ t('common.cancel') }}</button>
+          <button
+            @click="createNewPage"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+          >{{ t('page.create') }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showDeleteConfirmModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-96 shadow-xl">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ t('page.deleteConfirm') }}</h3>
+        <p class="text-sm text-gray-600 mb-6">{{ t('page.deleteWarning') }}</p>
+        <div class="flex justify-end gap-2">
+          <button
+            @click="showDeleteConfirmModal = false"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          >{{ t('common.cancel') }}</button>
+          <button
+            @click="deleteCurrentPage"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
+          >{{ t('common.delete') }}</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -1576,6 +1779,7 @@ import QRCode from 'qrcode'
 const fileInputRef = ref(null)
 const canvasRef = ref(null)
 const bgImageInputRef = ref(null)
+const spsdInputRef = ref(null)
 
 const platformFonts = {
   windows: [
@@ -1704,6 +1908,16 @@ const selectedPreset = ref('')
 const canvasScale = ref(100)
 const elements = ref([])
 const selectedElement = ref(null)
+
+const pages = ref([])
+const currentPageIndex = ref(0)
+const pageDirty = ref(false)
+
+const showPageEditModal = ref(false)
+const showNewPageModal = ref(false)
+const showDeleteConfirmModal = ref(false)
+const pageEditorData = ref({ pageNumber: 1, description: '' })
+const newPageData = ref({ pageNumber: 1, description: '' })
 const showShapeMenu = ref(false)
 const showIconMenu = ref(false)
 const showStickerMenu = ref(false)
@@ -1711,6 +1925,235 @@ const showOtherMenu = ref(false)
 
 const showBuildTime = ref(false)
 const buildTime = ref(__BUILD_TIME__)
+
+const createPage = (pageNumber = 1, description = '') => {
+  return {
+    id: Date.now() + Math.random(),
+    pageNumber,
+    description,
+    canvasWidth: canvasWidth.value,
+    canvasHeight: canvasHeight.value,
+    canvasBgColor: canvasBgColor.value,
+    canvasBgType: canvasBgType.value,
+    canvasBgImage: canvasBgImage.value,
+    canvasBgFillMode: canvasBgFillMode.value,
+    showGuides: showGuides.value,
+    snapThreshold: snapThreshold.value,
+    elements: JSON.parse(JSON.stringify(elements.value)),
+    history: JSON.parse(JSON.stringify(history.value)),
+    historyIndex: historyIndex.value
+  }
+}
+
+const saveCurrentPage = () => {
+  const currentPage = pages.value[currentPageIndex.value]
+  if (currentPage) {
+    currentPage.canvasWidth = canvasWidth.value
+    currentPage.canvasHeight = canvasHeight.value
+    currentPage.canvasBgColor = canvasBgColor.value
+    currentPage.canvasBgType = canvasBgType.value
+    currentPage.canvasBgImage = canvasBgImage.value
+    currentPage.canvasBgFillMode = canvasBgFillMode.value
+    currentPage.showGuides = showGuides.value
+    currentPage.snapThreshold = snapThreshold.value
+    currentPage.elements = JSON.parse(JSON.stringify(elements.value))
+    currentPage.history = JSON.parse(JSON.stringify(history.value))
+    currentPage.historyIndex = historyIndex.value
+    pageDirty.value = false
+  }
+}
+
+const loadPage = (index) => {
+  const page = pages.value[index]
+  if (page) {
+    canvasWidth.value = page.canvasWidth
+    canvasHeight.value = page.canvasHeight
+    canvasBgColor.value = page.canvasBgColor
+    canvasBgType.value = page.canvasBgType
+    canvasBgImage.value = page.canvasBgImage
+    canvasBgFillMode.value = page.canvasBgFillMode
+    showGuides.value = page.showGuides
+    snapThreshold.value = page.snapThreshold
+    elements.value = JSON.parse(JSON.stringify(page.elements))
+    history.value = JSON.parse(JSON.stringify(page.history))
+    historyIndex.value = page.historyIndex
+    selectedElement.value = null
+    currentPageIndex.value = index
+    pageDirty.value = false
+  }
+}
+
+const markPageDirty = () => {
+  pageDirty.value = true
+}
+
+const prevPage = () => {
+  if (currentPageIndex.value <= 0) return
+  if (pageDirty.value) {
+    if (confirm(t('page.saveBeforeSwitch'))) {
+      saveCurrentPage()
+    }
+  }
+  loadPage(currentPageIndex.value - 1)
+}
+
+const nextPage = () => {
+  if (currentPageIndex.value >= pages.value.length - 1) return
+  if (pageDirty.value) {
+    if (confirm(t('page.saveBeforeSwitch'))) {
+      saveCurrentPage()
+    }
+  }
+  loadPage(currentPageIndex.value + 1)
+}
+
+const openPageEditModal = () => {
+  const currentPage = pages.value[currentPageIndex.value]
+  if (currentPage) {
+    pageEditorData.value = {
+      pageNumber: currentPage.pageNumber,
+      description: currentPage.description
+    }
+    showPageEditModal.value = true
+  }
+}
+
+const savePageEdit = () => {
+  const currentPage = pages.value[currentPageIndex.value]
+  if (currentPage) {
+    currentPage.pageNumber = pageEditorData.value.pageNumber
+    currentPage.description = pageEditorData.value.description
+    markPageDirty()
+  }
+  showPageEditModal.value = false
+}
+
+const openNewPageModal = () => {
+  const maxPageNum = pages.value.reduce((max, p) => Math.max(max, p.pageNumber), 0)
+  newPageData.value = {
+    pageNumber: maxPageNum + 1,
+    description: ''
+  }
+  showNewPageModal.value = true
+}
+
+const createNewPage = () => {
+  if (pageDirty.value) {
+    if (confirm(t('page.saveBeforeSwitch'))) {
+      saveCurrentPage()
+    }
+  }
+  const newPage = createPage(newPageData.value.pageNumber, newPageData.value.description)
+  pages.value.push(newPage)
+  loadPage(pages.value.length - 1)
+  pageDirty.value = true
+  showNewPageModal.value = false
+}
+
+const openDeleteConfirmModal = () => {
+  if (pages.value.length <= 1) {
+    alert(t('page.cannotDeleteLast'))
+    return
+  }
+  showDeleteConfirmModal.value = true
+}
+
+const deleteCurrentPage = () => {
+  pages.value.splice(currentPageIndex.value, 1)
+  if (currentPageIndex.value >= pages.value.length) {
+    currentPageIndex.value = pages.value.length - 1
+  }
+  loadPage(currentPageIndex.value)
+  pageDirty.value = false
+  showDeleteConfirmModal.value = false
+}
+
+const initPages = () => {
+  const firstPage = createPage(1, '')
+  pages.value.push(firstPage)
+  currentPageIndex.value = 0
+  pageDirty.value = false
+}
+
+const saveSPSD = () => {
+  saveCurrentPage()
+  
+  const projectData = {
+    version: '1.0',
+    appName: 'SimplePs',
+    createdAt: new Date().toISOString(),
+    currentPageIndex: currentPageIndex.value,
+    pages: pages.value.map(page => ({
+      ...page,
+      history: page.history || [],
+      historyIndex: page.historyIndex ?? -1
+    }))
+  }
+  
+  const jsonStr = JSON.stringify(projectData, null, 2)
+  const blob = new Blob([jsonStr], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `project_${new Date().getTime()}.spsd`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+const loadSPSDClick = () => {
+  if (pageDirty.value && pages.value.length > 0) {
+    if (!confirm(t('page.saveBeforeLoad'))) {
+      return
+    }
+  }
+  spsdInputRef.value?.click()
+}
+
+const loadSPSD = (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const projectData = JSON.parse(e.target?.result)
+      
+      if (!projectData.pages || !Array.isArray(projectData.pages) || projectData.pages.length === 0) {
+        alert(t('page.invalidFile'))
+        return
+      }
+      
+      pages.value = projectData.pages
+      currentPageIndex.value = Math.min(projectData.currentPageIndex || 0, pages.value.length - 1)
+      
+      const page = pages.value[currentPageIndex.value]
+      canvasWidth.value = page.canvasWidth
+      canvasHeight.value = page.canvasHeight
+      canvasBgColor.value = page.canvasBgColor
+      canvasBgType.value = page.canvasBgType
+      canvasBgImage.value = page.canvasBgImage
+      canvasBgFillMode.value = page.canvasBgFillMode
+      showGuides.value = page.showGuides ?? true
+      snapThreshold.value = page.snapThreshold ?? 10
+      elements.value = JSON.parse(JSON.stringify(page.elements || []))
+      history.value = JSON.parse(JSON.stringify(page.history || []))
+      historyIndex.value = page.historyIndex ?? -1
+      selectedElement.value = null
+      pageDirty.value = false
+      
+      alert(t('page.loadSuccess'))
+    } catch (error) {
+      console.error('Failed to load SPSD file:', error)
+      alert(t('page.loadFailed'))
+    }
+  }
+  reader.readAsText(file)
+  
+  event.target.value = ''
+}
 
 const toggleMenu = (menuName) => {
   showShapeMenu.value = menuName === 'shape' ? !showShapeMenu.value : false
@@ -1925,6 +2368,7 @@ const saveHistory = (element) => {
   history.value = history.value.slice(0, historyIndex.value + 1)
   history.value.push(snapshot)
   historyIndex.value = history.value.length - 1
+  markPageDirty()
 }
 
 const undo = () => {
@@ -2458,6 +2902,7 @@ const handleKeyDown = (event) => {
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
   loadAvailableFonts()
+  initPages()
   
   window.handleCtrlD = function() {
     if (selectedElement.value) {
@@ -2564,6 +3009,7 @@ const addBorder = (border) => {
   
   elements.value.push(newElement)
   selectElement(newElement)
+  markPageDirty()
 }
 
 const addTable = () => {

@@ -7,6 +7,27 @@ export default {
     defaults: 'Defaults',
     noElements: 'No elements. Please add images or text.'
   },
+  page: {
+    management: 'Page Management',
+    currentPage: 'Page',
+    add: 'Add',
+    delete: 'Delete',
+    editPage: 'Edit Page Info',
+    addPage: 'Add Page',
+    pageNumber: 'Page Number',
+    description: 'Description',
+    descriptionPlaceholder: 'Enter page description',
+    create: 'Create',
+    save: 'Save',
+    deleteConfirm: 'Confirm Delete',
+    deleteWarning: 'This action cannot be undone. Are you sure you want to delete this page?',
+    saveBeforeSwitch: 'Current page has unsaved changes. Save before switching?',
+    cannotDeleteLast: 'At least one page must be kept',
+    saveBeforeLoad: 'Current project has unsaved changes. Loading a new project will lose current content. Continue?',
+    invalidFile: 'Invalid project file',
+    loadSuccess: 'Project loaded successfully',
+    loadFailed: 'Failed to load project'
+  },
   icon: {
     star: 'Star',
     heart: 'Heart',
@@ -132,7 +153,9 @@ export default {
     export: 'Export',
     border: 'Border',
     table: 'Table',
-    qrcode: 'QR Code'
+    qrcode: 'QR Code',
+    saveProject: 'Save Project',
+    loadProject: 'Load Project'
   },
   canvas: {
     width: 'Canvas Width (px)',

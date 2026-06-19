@@ -7,6 +7,27 @@ export default {
     defaults: '默认设置',
     noElements: '暂无元素，请添加图片或文字'
   },
+  page: {
+    management: '页面管理',
+    currentPage: '第',
+    add: '新增',
+    delete: '删除',
+    editPage: '编辑页面信息',
+    addPage: '新增页面',
+    pageNumber: '页面序号',
+    description: '页面描述',
+    descriptionPlaceholder: '请输入页面描述信息',
+    create: '创建',
+    save: '保存',
+    deleteConfirm: '确认删除',
+    deleteWarning: '删除后无法恢复，确定要删除此页面吗？',
+    saveBeforeSwitch: '当前页面有未保存的更改，是否保存？',
+    cannotDeleteLast: '至少需要保留一个页面',
+    saveBeforeLoad: '当前项目有未保存的更改，加载新项目将丢失当前内容，是否继续？',
+    invalidFile: '无效的项目文件',
+    loadSuccess: '项目加载成功',
+    loadFailed: '项目加载失败'
+  },
   icon: {
     star: '星星',
     heart: '心形',
@@ -132,7 +153,9 @@ export default {
     export: '导出',
     border: '边框',
     table: '表格',
-    qrcode: '二维码'
+    qrcode: '二维码',
+    saveProject: '保存项目',
+    loadProject: '加载项目'
   },
   canvas: {
     width: '画布宽度 (px)',
